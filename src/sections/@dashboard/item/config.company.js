@@ -8,13 +8,16 @@ const SECTORS = [
 
 const STATUS = [
   {
-    ACTIVE: 'active',
+    id: 'ACTIVE',
+    value: 'active',
   },
   {
-    INACTIVE: 'inactive',
+    id: 'INACTIVE',
+    value: 'inactive',
   },
   {
-    BANNED: 'banned',
+    id: 'DAMAGED',
+    value: 'damaged',
   },
 ];
 

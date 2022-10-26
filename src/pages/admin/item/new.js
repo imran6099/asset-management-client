@@ -10,19 +10,19 @@ import Layout from '../../../layouts';
 import Page from '../../../components/Page';
 import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
 // sections
-import CompanyNewEditForm from '../../../sections/@dashboard/company/CompanyNewEditForm';
+import ItemNewEditForm from '../../../sections/@dashboard/item/ItemNewEditForm';
 
 // Guards
 import RoleBasedGuard from '../../../guards/RoleBasedGuard';
 import { useEffect } from 'react';
-import { getUsers } from '../../../redux/slices/user';
+import { getCategories } from '../../../redux/slices/category';
 import { useDispatch } from 'react-redux';
-import { createCompany } from '../../../redux/thunk/company';
+import { createItem } from '../../../redux/thunk/item';
 
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import { useSnackbar } from 'notistack';
-import { getCompanies } from '../../../redux/slices/company';
+import { getItems } from '../../../redux/slices/item';
 
 // ----------------------------------------------------------------------
 
@@ -35,49 +35,49 @@ CompanyCreate.getLayout = function getLayout(page) {
 export default function CompanyCreate() {
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state);
+  const { category } = useSelector((state) => state);
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
 
-  const { users } = user;
+  const { categories } = category;
 
   useEffect(() => {
-    const getAllUsers = async () => {
-      await dispatch(getUsers());
+    const getAllCategories = async () => {
+      await dispatch(getCategories());
     };
-    getAllUsers();
+    getAllCategories();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
-  const handleCompanyCreate = async (id, company) => {
-    const reduxResponse = await dispatch(createCompany(company));
-    if (reduxResponse.type === 'company/create/rejected') {
+  const handleItemCreate = async (id, item) => {
+    const reduxResponse = await dispatch(createItem(item));
+    if (reduxResponse.type === 'item/create/rejected') {
       const { error } = reduxResponse;
       enqueueSnackbar(`${error.message}`, {
         variant: 'error',
       });
-    } else if (reduxResponse.type === 'company/create/fulfilled') {
+    } else if (reduxResponse.type === 'item/create/fulfilled') {
       enqueueSnackbar('Done', {
         variant: 'success',
       });
-      await dispatch(getCompanies());
-      router.push(PATH_ADMIN.company.list);
+      await dispatch(getItems());
+      router.push(PATH_ADMIN.item.list);
     }
   };
 
   return (
-    <RoleBasedGuard roles={['admin']} hasContent={true}>
-      <Page title="Company: Create a new company">
+    <RoleBasedGuard roles={['admin', 'superAdmin']} hasContent={true}>
+      <Page title="Item: Create a new item">
         <Container maxWidth={themeStretch ? false : 'lg'}>
           <HeaderBreadcrumbs
-            heading="Create a new company"
+            heading="Create a new item"
             links={[
               { name: 'Admin', href: PATH_ADMIN.root },
-              { name: 'Company', href: PATH_ADMIN.company.list },
-              { name: 'New company' },
+              { name: 'Item', href: PATH_ADMIN.item.list },
+              { name: 'New item' },
             ]}
           />
-          <CompanyNewEditForm handleCompanyCreate={handleCompanyCreate} users={users} />
+          <ItemNewEditForm handleItemCreate={handleItemCreate} categories={categories} />
         </Container>
       </Page>
     </RoleBasedGuard>

@@ -39,27 +39,26 @@ import Scrollbar from '../../../components/Scrollbar';
 import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
 import { TableEmptyRows, TableHeadCustom, TableNoData, TableSelectedActions } from '../../../components/table';
 // sections
-import { CompanyTableToolbar, CompanyTableRow } from '../../../sections/@dashboard/company/list';
+import { ItemTableToolbar, ItemTableRow } from '../../../sections/@dashboard/item/list';
 
-import { getCompanies } from '../../../redux/slices/company';
+import { getItems } from '../../../redux/slices/item';
+import { getCategories } from '../../../redux/slices/category';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteCompany } from '../../../redux/thunk/company';
+import { deleteItem } from '../../../redux/thunk/item';
 
 import { useSnackbar } from 'notistack';
 import {} from 'change-case';
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = ['all', 'active', 'banned'];
-
-const SECTOR_OPTIONS = ['all', 'banking & finance', 'construction', 'marketing', 'government', 'telecommunication'];
+const STATUS_OPTIONS = ['all', 'active', 'damaged', 'inactive'];
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Company Name', align: 'left' },
-  { id: 'user', label: 'User', align: 'left' },
-  { id: 'email', label: 'Email', align: 'left' },
-  { id: 'mobile', label: 'Mobile', align: 'left' },
-  { id: 'sector', label: 'Sector', align: 'left' },
-  { id: 'isVerified', label: 'Verified', align: 'center' },
+  { id: 'name', label: 'Name', align: 'left' },
+  { id: 'itemNumber', label: 'Item ID Number', align: 'left' },
+  { id: 'price', label: 'Price', align: 'left' },
+  { id: 'category', label: 'Category', align: 'left' },
+  { id: 'dateOfPurchase', label: 'Date Of Purchase', align: 'left' },
+  { id: 'location', label: 'Location', align: 'left' },
   { id: 'status', label: 'Status', align: 'left' },
   { id: '' },
 ];
@@ -68,12 +67,12 @@ const TABLE_HEAD = [
 
 // ----------------------------------------------------------------------
 
-UserList.getLayout = function getLayout(page) {
+ItemList.getLayout = function getLayout(page) {
   return <Layout>{page}</Layout>;
 };
 // ----------------------------------------------------------------------
 
-export default function UserList() {
+export default function ItemList() {
   const {
     dense,
     page,
@@ -98,23 +97,27 @@ export default function UserList() {
   // Get Companies
   const dispatch = useDispatch();
 
-  // useEffect(() => {
-  //   const fetchCompanies = async () => {
-  //     await dispatch(getCompanies());
-  //   };
-  //   fetchCompanies().catch((err) => {
-  //     console.log(err);
-  //   });
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [dispatch]);
+  useEffect(() => {
+    const fetchItems = async () => {
+      await dispatch(getItems());
+    };
+    const fetchCategoreis = async () => {
+      await dispatch(getCategories());
+    };
+    fetchItems();
+    fetchCategoreis();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch]);
 
-  const { company } = useSelector((state) => state);
-
+  const { item, category } = useSelector((state) => state);
+  const { categories } = category;
+  const CATEGORY_OPTIONS = categories.map((res) => res.name);
+  CATEGORY_OPTIONS.push('all');
   const { themeStretch } = useSettings();
 
   const { push } = useRouter();
 
-  const [tableData, setTableData] = useState(company?.companies || []);
+  const [tableData, setTableData] = useState(item?.items);
 
   const [filterName, setFilterName] = useState('');
 
@@ -132,21 +135,20 @@ export default function UserList() {
   };
 
   const handleDeleteRow = async (id) => {
-    const reduxResponse = await dispatch(deleteCompany(id));
-    if (reduxResponse.type === 'company/remove/rejected') {
+    const reduxResponse = await dispatch(deleteItem(id));
+    if (reduxResponse.type === 'item/remove/rejected') {
       enqueueSnackbar('Failed', {
         variant: 'error',
       });
-    } else if (reduxResponse.type === 'company/remove/fulfilled') {
+    } else if (reduxResponse.type === 'item/remove/fulfilled') {
       enqueueSnackbar('Done', {
         variant: 'success',
       });
-      await dispatch(getCompanies());
-      window.location.reload();
+      const deleteRow = tableData.filter((row) => row.id !== id);
+      setSelected([]);
+      setTableData(deleteRow);
+      await dispatch(getItems());
     }
-    // const deleteRow = tableData.filter((row) => row.id !== id);
-    // setSelected([]);
-    // setTableData(deleteRow);
   };
 
   const handleDeleteRows = (selected) => {
@@ -156,7 +158,7 @@ export default function UserList() {
   };
 
   const handleEditRow = (id) => {
-    push(PATH_ADMIN.company.edit(id));
+    push(PATH_ADMIN.item.edit(id));
   };
 
   const dataFiltered = applySortFilter({
@@ -176,19 +178,19 @@ export default function UserList() {
 
   return (
     <RoleBasedGuard roles={['admin', 'superAdmin']} hasContent={true}>
-      <Page title="Company: List">
+      <Page title="Item: List">
         <Container maxWidth={themeStretch ? false : 'lg'}>
           <HeaderBreadcrumbs
-            heading="Company List"
+            heading="Item List"
             links={[
               { name: 'ADMIN', href: PATH_ADMIN.root },
-              { name: 'Company', href: PATH_ADMIN.company.root },
+              { name: 'Item', href: PATH_ADMIN.item.root },
               { name: 'List' },
             ]}
             action={
-              <NextLink href={PATH_ADMIN.company.new} passHref>
+              <NextLink href={PATH_ADMIN.item.new} passHref>
                 <Button variant="contained" startIcon={<Iconify icon={'eva:plus-fill'} />}>
-                  New Company
+                  New item
                 </Button>
               </NextLink>
             }
@@ -210,12 +212,12 @@ export default function UserList() {
 
             <Divider />
 
-            <CompanyTableToolbar
+            <ItemTableToolbar
               filterName={filterName}
               filterRole={filterRole}
               onFilterName={handleFilterName}
               onFilterRole={handleFilterRole}
-              sectorOptions={SECTOR_OPTIONS}
+              sectorOptions={CATEGORY_OPTIONS}
             />
 
             <Scrollbar>
@@ -259,7 +261,7 @@ export default function UserList() {
 
                   <TableBody>
                     {dataFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-                      <CompanyTableRow
+                      <ItemTableRow
                         key={row.id}
                         row={row}
                         selected={selected.includes(row.id)}
@@ -315,7 +317,7 @@ function applySortFilter({ tableData, comparator, filterName, filterStatus, filt
   tableData = stabilizedThis.map((el) => el[0]);
 
   if (filterName) {
-    tableData = tableData.filter((item) => item.companyName.toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
+    tableData = tableData.filter((item) => item.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
   }
 
   if (filterStatus !== 'all') {
@@ -323,7 +325,7 @@ function applySortFilter({ tableData, comparator, filterName, filterStatus, filt
   }
 
   if (filterRole !== 'all') {
-    tableData = tableData.filter((item) => String(item.sector).toLowerCase() === filterRole);
+    tableData = tableData.filter((item) => item.category?.name === filterRole);
   }
 
   return tableData;

@@ -13,13 +13,15 @@ import Layout from '../../../../layouts';
 import Page from '../../../../components/Page';
 import HeaderBreadcrumbs from '../../../../components/HeaderBreadcrumbs';
 // sections
-import CompanyNewEditForm from '../../../../sections/@dashboard/company/CompanyNewEditForm';
+import ItemNewEditForm from '../../../../sections/@dashboard/item/ItemNewEditForm';
 // Guards
 import RoleBasedGuard from '../../../../guards/RoleBasedGuard';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
-import { updateCompany } from '../../../../redux/thunk/company';
-import { getCompanies } from '../../../../redux/slices/company';
+import { updateItem } from '../../../../redux/thunk/item';
+import { getItems } from '../../../../redux/slices/item';
+import { useEffect } from 'react';
+import { getCategories } from '../../../../redux/slices/category';
 
 // ----------------------------------------------------------------------
 
@@ -36,56 +38,64 @@ export default function UserEdit() {
 
   const { id } = query;
 
-  const { company, user } = useSelector((state) => state);
+  useEffect(() => {
+    const getAllCategories = async () => {
+      await dispatch(getCategories());
+    };
+    getAllCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch]);
 
-  const { companies } = company;
-  const { users } = user;
+  const { item, category } = useSelector((state) => state);
 
-  const currentCompany = companies.find((company) => paramCase(company.id) === id);
+  const { items } = item;
+  const { categories } = category;
+
+  const currentItem = items.find((item) => paramCase(item.id) === id);
 
   const dispatch = useDispatch();
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
 
-  const handleCompanyCreate = async (id, company) => {
+  const handleItemCreate = async (id, item) => {
     const reqObject = {
       id,
-      company,
+      item,
     };
-    const reduxResponse = await dispatch(updateCompany(reqObject));
-    if (reduxResponse.type === 'company/update/rejected') {
+    const reduxResponse = await dispatch(updateItem(reqObject));
+    if (reduxResponse.type === 'item/update/rejected') {
       const { error } = reduxResponse;
       enqueueSnackbar(`${error.message}`, {
         variant: 'error',
       });
-    } else if (reduxResponse.type === 'company/update/fulfilled') {
+    } else if (reduxResponse.type === 'item/update/fulfilled') {
       enqueueSnackbar('Done', {
         variant: 'success',
       });
-      await dispatch(getCompanies());
-      router.push(PATH_ADMIN.company.list);
+      await dispatch(getItems());
+      router.push(PATH_ADMIN.item.list);
     }
   };
 
   return (
-    <RoleBasedGuard roles={['admin']}>
-      <Page title="Company: Edit company">
+    <RoleBasedGuard roles={['admin', 'superAdmin']}>
+      <Page title="Item: Edit item">
         <Container maxWidth={themeStretch ? false : 'lg'}>
           <HeaderBreadcrumbs
             heading="Edit user"
             links={[
               { name: 'Dashboard', href: PATH_ADMIN.root },
-              { name: 'Company', href: PATH_ADMIN.company.list },
+              { name: 'Item', href: PATH_ADMIN.item.list },
               { name: capitalCase(id) },
             ]}
           />
 
-          <CompanyNewEditForm
+          <ItemNewEditForm
             id={id}
-            handleCompanyCreate={handleCompanyCreate}
+            handleItemCreate={handleItemCreate}
             isEdit
-            currentCompany={currentCompany}
-            users={users}
+            currentItem={currentItem}
+            categories={categories}
           />
         </Container>
       </Page>

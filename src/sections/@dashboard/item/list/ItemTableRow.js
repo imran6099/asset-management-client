@@ -20,7 +20,7 @@ UserTableRow.propTypes = {
 
 export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
   const theme = useTheme();
-  const { companyName, companyNumber, userId, sector, email, companyLogo, isVerified, status } = row;
+  const { itemNumber, name, imageUrl, price, category, dateOfPurchase, location, status } = row;
 
   const [openMenu, setOpenMenuActions] = useState(null);
 
@@ -39,42 +39,29 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
       </TableCell>
 
       <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-        <Avatar alt={companyName} src={companyLogo} sx={{ mr: 2 }} />
+        <Avatar alt={name} src={imageUrl} sx={{ mr: 2 }} />
         <Typography variant="subtitle2" noWrap>
-          {companyName}
+          {name}
         </Typography>
       </TableCell>
 
-      <TableCell align="left">{userId?.name}</TableCell>
+      <TableCell align="left">{itemNumber}</TableCell>
+      <TableCell align="left">{price}</TableCell>
+
+      <TableCell align="left">{category?.name}</TableCell>
 
       <TableCell align="left" sx={{ textTransform: 'capitalize' }}>
-        {email}
+        {dateOfPurchase?.split('T')[0]}
       </TableCell>
 
       <TableCell align="left" sx={{ textTransform: 'capitalize' }}>
-        {companyNumber}
-      </TableCell>
-
-      <TableCell align="left" sx={{ textTransform: 'capitalize' }}>
-        {sector}
-      </TableCell>
-
-      <TableCell align="center">
-        <Iconify
-          icon={isVerified ? 'eva:checkmark-circle-fill' : 'eva:clock-outline'}
-          sx={{
-            width: 20,
-            height: 20,
-            color: 'success.main',
-            ...(!isVerified && { color: 'warning.main' }),
-          }}
-        />
+        {location}
       </TableCell>
 
       <TableCell align="left">
         <Label
           variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
-          color={(status === 'banned' && 'error') || (status === 'inactive' && 'warning') || 'success'}
+          color={(status === 'damaged' && 'error') || (status === 'inactive' && 'warning') || 'success'}
           sx={{ textTransform: 'capitalize' }}
         >
           {status}
@@ -106,6 +93,15 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
               >
                 <Iconify icon={'eva:edit-fill'} />
                 Edit
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  onEditRow();
+                  handleCloseMenu();
+                }}
+              >
+                <Iconify icon={'eva:edit-fill'} />
+                Show More
               </MenuItem>
             </>
           }
