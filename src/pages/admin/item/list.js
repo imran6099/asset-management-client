@@ -31,7 +31,6 @@ import Layout from '../../../layouts';
 
 // Guards
 import RoleBasedGuard from '../../../guards/RoleBasedGuard';
-
 // components
 import Page from '../../../components/Page';
 import Iconify from '../../../components/Iconify';
@@ -42,7 +41,7 @@ import { TableEmptyRows, TableHeadCustom, TableNoData, TableSelectedActions } fr
 import { ItemTableToolbar, ItemTableRow } from '../../../sections/@dashboard/item/list';
 
 import { getItems } from '../../../redux/slices/item';
-import { destroyData, isItemLoading } from '../../../redux/slices/data';
+import { destroyData } from '../../../redux/slices/data';
 import { getCategories } from '../../../redux/slices/category';
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteItem, createManyItems, deleteManyItem } from '../../../redux/thunk/item';
@@ -96,7 +95,6 @@ export default function ItemList() {
 
   const { enqueueSnackbar } = useSnackbar();
 
-  // Get Companies
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -185,7 +183,9 @@ export default function ItemList() {
   const handleShowMore = (id) => {
     push(PATH_ADMIN.item.view(id));
   };
-
+  const handleNewIssue = (id) => {
+    push(PATH_ADMIN.item.newIssue(id));
+  };
   const dataFiltered = applySortFilter({
     tableData,
     comparator: getComparator(order, orderBy),
@@ -331,6 +331,7 @@ export default function ItemList() {
                         onDeleteRow={() => handleDeleteRow(row.id)}
                         onEditRow={() => handleEditRow(row.id)}
                         onShowMore={() => handleShowMore(row.id)}
+                        onNewIssue={() => handleNewIssue(row.id)}
                       />
                     ))}
 

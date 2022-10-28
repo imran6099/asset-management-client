@@ -17,9 +17,10 @@ UserTableRow.propTypes = {
   onSelectRow: PropTypes.func,
   onDeleteRow: PropTypes.func,
   onShowMore: PropTypes.func,
+  onNewIssue: PropTypes.func,
 };
 
-export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onShowMore }) {
+export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onNewIssue, onDeleteRow, onShowMore }) {
   const theme = useTheme();
   const { itemNumber, name, images, price, category, dateOfPurchase, location, status } = row;
 
@@ -108,8 +109,17 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
                   handleCloseMenu();
                 }}
               >
-                <Iconify icon={'eva:edit-fill'} />
+                <Iconify icon={'eva:eye-fill'} />
                 Show More
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  onNewIssue();
+                  handleCloseMenu();
+                }}
+              >
+                <Iconify icon={'eva:edit-fill'} />
+                New Issue
               </MenuItem>
             </>
           }

@@ -11,7 +11,7 @@ import { Box, Card, Grid, Stack, Typography, InputAdornment } from '@mui/materia
 // components
 import Label from '../../../components/Label';
 import { FormProvider, RHFSelect, RHFTextField, RHFEditor, RHFUpload } from '../../../components/hook-form';
-import { STATUS } from './config.company';
+import { STATUS, LOCATION } from './config.item';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../../firebase.config';
 // ----------------------------------------------------------------------
@@ -238,8 +238,15 @@ export default function ItemNewEditForm({ isEdit = false, id, currentItem, handl
                     type: 'number',
                   }}
                 />
+                <RHFSelect name="location" label="Location" placeholder="Location">
+                  <option value="" />
+                  {LOCATION.map((option) => (
+                    <option key={option.id} value={option.value}>
+                      {option.id}
+                    </option>
+                  ))}
+                </RHFSelect>
 
-                <RHFTextField name="location" label="Location" />
                 <RHFTextField name="dateOfPurchase" type="date" />
               </Stack>
             </Card>

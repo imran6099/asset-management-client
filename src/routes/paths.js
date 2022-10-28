@@ -37,6 +37,9 @@ export const PATH_ADMIN = {
     profile: path(ROOTS_ADMIN, '/company/profile'),
     edit: (id) => path(ROOTS_ADMIN, `/company/${id}/edit`),
   },
+  insights: {
+    root: path(ROOTS_ADMIN, '/insights'),
+  },
   user: {
     root: path(ROOTS_ADMIN, '/user'),
     new: path(ROOTS_ADMIN, '/user/new'),
@@ -58,6 +61,7 @@ export const PATH_ADMIN = {
     profile: path(ROOTS_ADMIN, '/item/profile'),
     edit: (id) => path(ROOTS_ADMIN, `/item/${id}/edit`),
     view: (id) => path(ROOTS_ADMIN, `/item/${id}`),
+    newIssue: (id) => path(ROOTS_ADMIN, `/issue/new?itemId=${id}`),
   },
   issue: {
     root: path(ROOTS_ADMIN, '/issue'),

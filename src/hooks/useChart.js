@@ -1,9 +1,10 @@
+import merge from 'lodash/merge';
 // @mui
-import { useTheme } from '@mui/material/styles';
+import { useTheme, alpha } from '@mui/material/styles';
 
 // ----------------------------------------------------------------------
 
-export default function BaseOptionChart() {
+export default function useChart(options) {
   const theme = useTheme();
 
   const LABEL_TOTAL = {
@@ -23,15 +24,18 @@ export default function BaseOptionChart() {
     lineHeight: theme.typography.h3.lineHeight,
   };
 
-  return {
+  const baseOptions = {
     // Colors
     colors: [
       theme.palette.primary.main,
-      theme.palette.chart.yellow[0],
-      theme.palette.chart.blue[0],
-      theme.palette.chart.violet[0],
-      theme.palette.chart.green[0],
-      theme.palette.chart.red[0],
+      theme.palette.warning.main,
+      theme.palette.info.main,
+      theme.palette.error.main,
+      theme.palette.success.main,
+      theme.palette.warning.dark,
+      theme.palette.success.darker,
+      theme.palette.info.dark,
+      theme.palette.info.darker,
     ],
 
     // Chart
@@ -126,9 +130,10 @@ export default function BaseOptionChart() {
     plotOptions: {
       // Bar
       bar: {
-        columnWidth: '28%',
         borderRadius: 4,
+        columnWidth: '28%',
       },
+
       // Pie + Donut
       pie: {
         donut: {
@@ -139,17 +144,19 @@ export default function BaseOptionChart() {
           },
         },
       },
+
       // Radialbar
       radialBar: {
         track: {
           strokeWidth: '100%',
-          background: theme.palette.grey[500_16],
+          background: alpha(theme.palette.grey[500], 0.16),
         },
         dataLabels: {
           value: LABEL_VALUE,
           total: LABEL_TOTAL,
         },
       },
+
       // Radar
       radar: {
         polygons: {
@@ -158,6 +165,7 @@ export default function BaseOptionChart() {
           connectorColors: theme.palette.divider,
         },
       },
+
       // polarArea
       polarArea: {
         rings: {
@@ -187,4 +195,6 @@ export default function BaseOptionChart() {
       },
     ],
   };
+
+  return merge(baseOptions, options);
 }

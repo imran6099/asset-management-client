@@ -10,19 +10,19 @@ import Layout from '../../../layouts';
 import Page from '../../../components/Page';
 import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
 // sections
-import CompanyNewEditForm from '../../../sections/@dashboard/company/CompanyNewEditForm';
+import IssueNewEditForm from '../../../sections/@dashboard/issue/IssueNewEditForm';
 
 // Guards
 import RoleBasedGuard from '../../../guards/RoleBasedGuard';
 import { useEffect } from 'react';
 import { getUsers } from '../../../redux/slices/user';
 import { useDispatch } from 'react-redux';
-import { createCompany } from '../../../redux/thunk/company';
+import { createIssue } from '../../../redux/thunk/issue';
 
-import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import { useSnackbar } from 'notistack';
-import { getCompanies } from '../../../redux/slices/company';
+import { getIssues } from '../../../redux/slices/issue';
+import useAuth from '../../../hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -35,11 +35,13 @@ CompanyCreate.getLayout = function getLayout(page) {
 export default function CompanyCreate() {
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state);
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
+  const { user } = useAuth();
 
-  const { users } = user;
+  const { query } = useRouter();
+
+  const { itemId } = query;
 
   useEffect(() => {
     const getAllUsers = async () => {
@@ -49,35 +51,35 @@ export default function CompanyCreate() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
-  const handleCompanyCreate = async (id, company) => {
-    const reduxResponse = await dispatch(createCompany(company));
-    if (reduxResponse.type === 'company/create/rejected') {
+  const handleIssueCreate = async (id, issue) => {
+    const reduxResponse = await dispatch(createIssue(issue));
+    if (reduxResponse.type === 'issue/create/rejected') {
       const { error } = reduxResponse;
       enqueueSnackbar(`${error.message}`, {
         variant: 'error',
       });
-    } else if (reduxResponse.type === 'company/create/fulfilled') {
+    } else if (reduxResponse.type === 'issue/create/fulfilled') {
       enqueueSnackbar('Done', {
         variant: 'success',
       });
-      await dispatch(getCompanies());
-      router.push(PATH_ADMIN.company.list);
+      await dispatch(getIssues());
+      router.push(PATH_ADMIN.issue.list);
     }
   };
 
   return (
-    <RoleBasedGuard roles={['admin']} hasContent={true}>
-      <Page title="Company: Create a new company">
+    <RoleBasedGuard roles={['admin', 'superAdmin']} hasContent={true}>
+      <Page title="Issue: Create a new issue">
         <Container maxWidth={themeStretch ? false : 'lg'}>
           <HeaderBreadcrumbs
-            heading="Create a new company"
+            heading="Create a new issue"
             links={[
               { name: 'Admin', href: PATH_ADMIN.root },
-              { name: 'Company', href: PATH_ADMIN.company.list },
-              { name: 'New company' },
+              { name: 'Issue', href: PATH_ADMIN.issue.list },
+              { name: 'New issue' },
             ]}
           />
-          <CompanyNewEditForm handleCompanyCreate={handleCompanyCreate} users={users} />
+          <IssueNewEditForm handleIssueCreate={handleIssueCreate} itemId={itemId} userId={user.id} />
         </Container>
       </Page>
     </RoleBasedGuard>

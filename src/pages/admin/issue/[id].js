@@ -1,11 +1,10 @@
 import { useState } from 'react';
 // next
-import Head from 'next/head';
 import { useRouter } from 'next/router';
 // @mui
 import { Box, Tab, Tabs, Card, Grid, Divider, Container } from '@mui/material';
 // redux
-import { useSelector } from '../../../redux/store';
+import { useSelector, useDispatch } from '../../../redux/store';
 // routes
 import { PATH_ADMIN } from '../../../routes/paths';
 // layouts
@@ -17,25 +16,29 @@ import Markdown from '../../../components/Markdown';
 import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
 
 // sections
-import { ItemDetailsSummary, ItemDetailsCarousel } from '../../../sections/@dashboard/item/details';
+import { IssueDetailsSummary } from '../../../sections/@dashboard/issue/details';
 import RoleBasedGuard from '../../../guards/RoleBasedGuard';
+import { getIssues } from '../../../redux/slices/issue';
+import { updateIssueStatus } from '../../../redux/thunk/issue';
+import { useSnackbar } from 'notistack';
 
 // ----------------------------------------------------------------------
 
-ItemDetails.getLayout = (page) => <Layout>{page}</Layout>;
+IssueDetails.getLayout = (page) => <Layout>{page}</Layout>;
 
 // ----------------------------------------------------------------------
 
-export default function ItemDetails() {
+export default function IssueDetails() {
   const {
     query: { id },
   } = useRouter();
 
-  const { item } = useSelector((state) => state);
+  const { issue } = useSelector((state) => state);
 
-  const { items } = item;
+  const { issues } = issue;
 
-  const currentItem = items.find((item) => item.id === id);
+  const currentItem = issues.find((item) => item.id === id);
+  const { enqueueSnackbar } = useSnackbar();
 
   const [currentTab, setCurrentTab] = useState('description');
 
@@ -47,28 +50,45 @@ export default function ItemDetails() {
     },
   ];
 
+  const dispatch = useDispatch();
+
+  const handleIssueUpdate = async (id, status) => {
+    const reqObject = {
+      id,
+      status,
+    };
+    const reduxResponse = await dispatch(updateIssueStatus(reqObject));
+    if (reduxResponse.type === 'issue/update-status/rejected') {
+      const { error } = reduxResponse;
+      enqueueSnackbar(`${error.message}`, {
+        variant: 'error',
+      });
+    } else if (reduxResponse.type === 'issue/update-status/fulfilled') {
+      enqueueSnackbar('Issue Status Updated!', {
+        variant: 'success',
+      });
+      await dispatch(getIssues());
+    }
+  };
+
   return (
     <RoleBasedGuard roles={['admin', 'superAdmin']} hasContent={true}>
-      <Page title="Item: Create a new item">
+      <Page title="Item: List">
         <Container maxWidth={'lg'}>
           <HeaderBreadcrumbs
-            heading="Create a new item"
+            heading="Issue Details"
             links={[
               { name: 'Admin', href: PATH_ADMIN.root },
-              { name: 'Item', href: PATH_ADMIN.item.list },
-              { name: currentItem.name || '' },
+              { name: 'Issue', href: PATH_ADMIN.issue.list },
+              { name: currentItem.title || '' },
             ]}
           />
 
           {currentItem && (
             <>
               <Grid container spacing={3}>
-                <Grid item xs={12} md={6} lg={7}>
-                  <ItemDetailsCarousel item={currentItem} />
-                </Grid>
-
                 <Grid item xs={12} md={6} lg={5}>
-                  <ItemDetailsSummary item={currentItem} />
+                  <IssueDetailsSummary issue={currentItem} handleIssueUpdate={handleIssueUpdate} />
                 </Grid>
               </Grid>
               <Card>

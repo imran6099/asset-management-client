@@ -8,7 +8,7 @@ export default function Index() {
 
   useEffect(() => {
     if (router.pathname == '/') {
-      router.push('/admin/company/list');
+      router.push('/admin');
     }
   });
 

@@ -50,7 +50,7 @@ import { CollapseDrawerProvider } from '../contexts/CollapseDrawerContext';
 import ThemeProvider from '../theme';
 // components
 // import ThemeSettings from '../components/settings';
-import { ChartStyle } from '../components/chart';
+import { StyledChart } from '../components/chart';
 import ProgressBar from '../components/ProgressBar';
 import NotistackProvider from '../components/NotistackProvider';
 import MotionLazyContainer from '../components/animate/MotionLazyContainer';
@@ -89,11 +89,13 @@ export default function MyApp(props) {
               <SettingsProvider defaultSettings={settings}>
                 <MotionLazyContainer>
                   <ThemeProvider>
+                    {/* <ThemeSettings> */}
                     <NotistackProvider>
-                      <ChartStyle />
+                      <StyledChart />
                       <ProgressBar />
                       {getLayout(<Component {...pageProps} />)}
                     </NotistackProvider>
+                    {/* </ThemeSettings> */}
                   </ThemeProvider>
                 </MotionLazyContainer>
               </SettingsProvider>

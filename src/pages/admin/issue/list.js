@@ -39,27 +39,25 @@ import Scrollbar from '../../../components/Scrollbar';
 import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
 import { TableEmptyRows, TableHeadCustom, TableNoData, TableSelectedActions } from '../../../components/table';
 // sections
-import { CompanyTableToolbar, CompanyTableRow } from '../../../sections/@dashboard/company/list';
+import { IssueTableToolbar, IssueTableRow } from '../../../sections/@dashboard/issue/list';
 
-import { getCompanies } from '../../../redux/slices/company';
+import { getUsers } from '../../../redux/slices/user';
+import { getIssues } from '../../../redux/slices/issue';
+
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteCompany } from '../../../redux/thunk/company';
+import { deleteIssue, deleteManyIssues } from '../../../redux/thunk/issue';
 
 import { useSnackbar } from 'notistack';
 import {} from 'change-case';
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = ['all', 'active', 'banned'];
-
-const SECTOR_OPTIONS = ['all', 'banking & finance', 'construction', 'marketing', 'government', 'telecommunication'];
+const STATUS_OPTIONS = ['all', 'under review', 'accepted', 'rejected'];
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Company Name', align: 'left' },
-  { id: 'user', label: 'User', align: 'left' },
-  { id: 'email', label: 'Email', align: 'left' },
-  { id: 'mobile', label: 'Mobile', align: 'left' },
-  { id: 'sector', label: 'Sector', align: 'left' },
-  { id: 'isVerified', label: 'Verified', align: 'center' },
+  { id: 'title', label: 'Title', align: 'left' },
+  { id: 'item', label: 'Item', align: 'left' },
+  { id: 'issuedBy', label: 'Issued By', align: 'left' },
+  { id: 'issueDate', label: 'Issue Date', align: 'left' },
   { id: 'status', label: 'Status', align: 'left' },
   { id: '' },
 ];
@@ -95,26 +93,31 @@ export default function UserList() {
 
   const { enqueueSnackbar } = useSnackbar();
 
-  // Get Companies
   const dispatch = useDispatch();
 
-  // useEffect(() => {
-  //   const fetchCompanies = async () => {
-  //     await dispatch(getCompanies());
-  //   };
-  //   fetchCompanies().catch((err) => {
-  //     console.log(err);
-  //   });
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [dispatch]);
+  useEffect(() => {
+    const fetchIssues = async () => {
+      await dispatch(getIssues());
+    };
+    const fetchUsers = async () => {
+      await dispatch(getUsers());
+    };
+    fetchIssues();
+    fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch]);
 
-  const { company } = useSelector((state) => state);
+  const { user, issue } = useSelector((state) => state);
+  const { users } = user;
+
+  const USER_OPTIONS = users.map((res) => res.name);
+  USER_OPTIONS.push('all');
 
   const { themeStretch } = useSettings();
 
   const { push } = useRouter();
 
-  const [tableData, setTableData] = useState(company?.companies || []);
+  const [tableData, setTableData] = useState(issue?.issues || []);
 
   const [filterName, setFilterName] = useState('');
 
@@ -132,31 +135,45 @@ export default function UserList() {
   };
 
   const handleDeleteRow = async (id) => {
-    const reduxResponse = await dispatch(deleteCompany(id));
-    if (reduxResponse.type === 'company/remove/rejected') {
+    const reduxResponse = await dispatch(deleteIssue(id));
+    if (reduxResponse.type === 'issue/remove/rejected') {
       enqueueSnackbar('Failed', {
         variant: 'error',
       });
-    } else if (reduxResponse.type === 'company/remove/fulfilled') {
+    } else if (reduxResponse.type === 'issue/remove/fulfilled') {
       enqueueSnackbar('Done', {
         variant: 'success',
       });
-      await dispatch(getCompanies());
-      window.location.reload();
+      const deleteRow = tableData.filter((row) => row.id !== id);
+      setSelected([]);
+      setTableData(deleteRow);
+      await dispatch(getIssues());
     }
-    // const deleteRow = tableData.filter((row) => row.id !== id);
-    // setSelected([]);
-    // setTableData(deleteRow);
   };
 
-  const handleDeleteRows = (selected) => {
-    const deleteRows = tableData.filter((row) => !selected.includes(row.id));
-    setSelected([]);
-    setTableData(deleteRows);
+  const handleDeleteRows = async (selected) => {
+    const reduxResponse = await dispatch(deleteManyIssues(selected));
+    if (reduxResponse.type === 'item/remove-many/rejected') {
+      enqueueSnackbar('Failed', {
+        variant: 'error',
+      });
+    } else if (reduxResponse.type === 'item/remove-many/fulfilled') {
+      enqueueSnackbar('Done', {
+        variant: 'success',
+      });
+      const deleteRows = tableData.filter((row) => !selected.includes(row.id));
+      setSelected([]);
+      setTableData(deleteRows);
+      await dispatch(getIssues());
+    }
   };
 
   const handleEditRow = (id) => {
-    push(PATH_ADMIN.company.edit(id));
+    push(PATH_ADMIN.issue.edit(id));
+  };
+
+  const handleShowMore = (id) => {
+    push(PATH_ADMIN.issue.view(id));
   };
 
   const dataFiltered = applySortFilter({
@@ -182,16 +199,9 @@ export default function UserList() {
             heading="Company List"
             links={[
               { name: 'ADMIN', href: PATH_ADMIN.root },
-              { name: 'Company', href: PATH_ADMIN.company.root },
+              { name: 'Issue', href: PATH_ADMIN.issue.root },
               { name: 'List' },
             ]}
-            action={
-              <NextLink href={PATH_ADMIN.company.new} passHref>
-                <Button variant="contained" startIcon={<Iconify icon={'eva:plus-fill'} />}>
-                  New Company
-                </Button>
-              </NextLink>
-            }
           />
 
           <Card>
@@ -210,12 +220,12 @@ export default function UserList() {
 
             <Divider />
 
-            <CompanyTableToolbar
+            <IssueTableToolbar
               filterName={filterName}
               filterRole={filterRole}
               onFilterName={handleFilterName}
               onFilterRole={handleFilterRole}
-              sectorOptions={SECTOR_OPTIONS}
+              sectorOptions={USER_OPTIONS}
             />
 
             <Scrollbar>
@@ -259,13 +269,14 @@ export default function UserList() {
 
                   <TableBody>
                     {dataFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-                      <CompanyTableRow
+                      <IssueTableRow
                         key={row.id}
                         row={row}
                         selected={selected.includes(row.id)}
                         onSelectRow={() => onSelectRow(row.id)}
                         onDeleteRow={() => handleDeleteRow(row.id)}
                         onEditRow={() => handleEditRow(row.id)}
+                        onShowMore={() => handleShowMore(row.id)}
                       />
                     ))}
 
@@ -315,7 +326,7 @@ function applySortFilter({ tableData, comparator, filterName, filterStatus, filt
   tableData = stabilizedThis.map((el) => el[0]);
 
   if (filterName) {
-    tableData = tableData.filter((item) => item.companyName.toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
+    tableData = tableData.filter((item) => item.title.toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
   }
 
   if (filterStatus !== 'all') {
@@ -323,7 +334,7 @@ function applySortFilter({ tableData, comparator, filterName, filterStatus, filt
   }
 
   if (filterRole !== 'all') {
-    tableData = tableData.filter((item) => String(item.sector).toLowerCase() === filterRole);
+    tableData = tableData.filter((item) => item.issuedBy?.name === filterRole);
   }
 
   return tableData;

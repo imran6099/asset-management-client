@@ -23,7 +23,7 @@ const navConfig = [
     subheader: 'Admin',
     role: 'admin',
     items: [
-      { title: 'Analytics', path: PATH_ADMIN.company.root, icon: ICONS.analytics },
+      { title: 'Analytics', path: PATH_ADMIN.insights.root, icon: ICONS.analytics },
       { title: 'Categories', path: PATH_ADMIN.category.root, icon: ICONS.category },
       { title: 'Items', path: PATH_ADMIN.item.root, icon: ICONS.item },
       { title: 'Issues', path: PATH_ADMIN.issue.root, icon: ICONS.issue },

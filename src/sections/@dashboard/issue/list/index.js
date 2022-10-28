@@ -1,2 +1,2 @@
-export { default as CompanyTableRow } from './CompanyTableRow';
-export { default as CompanyTableToolbar } from './CompanyTableToolbar';
+export { default as IssueTableRow } from './IssueTableRow';
+export { default as IssueTableToolbar } from './IssueTableToolbar';
