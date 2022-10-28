@@ -42,17 +42,19 @@ import { TableEmptyRows, TableHeadCustom, TableNoData, TableSelectedActions } fr
 import { ItemTableToolbar, ItemTableRow } from '../../../sections/@dashboard/item/list';
 
 import { getItems } from '../../../redux/slices/item';
+import { destroyData, isItemLoading } from '../../../redux/slices/data';
 import { getCategories } from '../../../redux/slices/category';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteItem } from '../../../redux/thunk/item';
+import { deleteItem, createManyItems, deleteManyItem } from '../../../redux/thunk/item';
 
 import { useSnackbar } from 'notistack';
-import {} from 'change-case';
+import MaxWidthDialog from './bulk/BulkFiles';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = ['all', 'active', 'damaged', 'inactive'];
 
 const TABLE_HEAD = [
+  { id: 'image', label: 'Image', align: 'left' },
   { id: 'name', label: 'Name', align: 'left' },
   { id: 'itemNumber', label: 'Item ID Number', align: 'left' },
   { id: 'price', label: 'Price', align: 'left' },
@@ -111,13 +113,22 @@ export default function ItemList() {
 
   const { item, category } = useSelector((state) => state);
   const { categories } = category;
+
   const CATEGORY_OPTIONS = categories.map((res) => res.name);
   CATEGORY_OPTIONS.push('all');
+
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => {
+    setOpen(false);
+    dispatch(destroyData());
+  };
+
   const { themeStretch } = useSettings();
 
   const { push } = useRouter();
 
-  const [tableData, setTableData] = useState(item?.items);
+  const [tableData, setTableData] = useState(item?.items || []);
 
   const [filterName, setFilterName] = useState('');
 
@@ -151,14 +162,28 @@ export default function ItemList() {
     }
   };
 
-  const handleDeleteRows = (selected) => {
-    const deleteRows = tableData.filter((row) => !selected.includes(row.id));
-    setSelected([]);
-    setTableData(deleteRows);
+  const handleDeleteRows = async (selected) => {
+    const reduxResponse = await dispatch(deleteManyItem(selected));
+    if (reduxResponse.type === 'item/remove-many/rejected') {
+      enqueueSnackbar('Failed', {
+        variant: 'error',
+      });
+    } else if (reduxResponse.type === 'item/remove-many/fulfilled') {
+      enqueueSnackbar('Done', {
+        variant: 'success',
+      });
+      const deleteRows = tableData.filter((row) => !selected.includes(row.id));
+      setSelected([]);
+      setTableData(deleteRows);
+      await dispatch(getItems());
+    }
   };
 
   const handleEditRow = (id) => {
     push(PATH_ADMIN.item.edit(id));
+  };
+  const handleShowMore = (id) => {
+    push(PATH_ADMIN.item.view(id));
   };
 
   const dataFiltered = applySortFilter({
@@ -176,6 +201,24 @@ export default function ItemList() {
     (!dataFiltered.length && !!filterRole) ||
     (!dataFiltered.length && !!filterStatus);
 
+  // Bulk File Upload
+  const handleBulkUpload = async (data) => {
+    const newArray = data.map(({ id, ...rest }) => rest);
+    const reduxResponse = await dispatch(createManyItems(newArray));
+    if (reduxResponse.type === 'item/create-many/rejected') {
+      enqueueSnackbar('Failed', {
+        variant: 'error',
+      });
+    } else if (reduxResponse.type === 'item/create-many/fulfilled') {
+      enqueueSnackbar('Done', {
+        variant: 'success',
+      });
+      dispatch(destroyData());
+      dispatch(getItems());
+      window.location.reload();
+    }
+  };
+
   return (
     <RoleBasedGuard roles={['admin', 'superAdmin']} hasContent={true}>
       <Page title="Item: List">
@@ -188,13 +231,32 @@ export default function ItemList() {
               { name: 'List' },
             ]}
             action={
-              <NextLink href={PATH_ADMIN.item.new} passHref>
-                <Button variant="contained" startIcon={<Iconify icon={'eva:plus-fill'} />}>
-                  New item
+              <Box>
+                <NextLink href={PATH_ADMIN.item.new} passHref>
+                  <Button variant="contained" startIcon={<Iconify icon={'eva:plus-fill'} />}>
+                    New item
+                  </Button>
+                </NextLink>
+
+                <Button
+                  sx={{ m: 2 }}
+                  onClick={handleOpen}
+                  variant="outlined"
+                  startIcon={<Iconify icon={'eva:plus-fill'} />}
+                >
+                  Upload CSV
                 </Button>
-              </NextLink>
+              </Box>
             }
           />
+          {open && (
+            <MaxWidthDialog
+              handleBulkUpload={handleBulkUpload}
+              handleOpen={handleOpen}
+              handleClose={handleClose}
+              open={open}
+            />
+          )}
 
           <Card>
             <Tabs
@@ -268,6 +330,7 @@ export default function ItemList() {
                         onSelectRow={() => onSelectRow(row.id)}
                         onDeleteRow={() => handleDeleteRow(row.id)}
                         onEditRow={() => handleEditRow(row.id)}
+                        onShowMore={() => handleShowMore(row.id)}
                       />
                     ))}
 

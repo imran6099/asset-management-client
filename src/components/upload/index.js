@@ -5,3 +5,6 @@ export { default as MultiFilePreview } from './MultiFilePreview';
 export { default as UploadAvatar } from './UploadAvatar';
 export { default as UploadMultiFile } from './UploadMultiFile';
 export { default as UploadSingleFile } from './UploadSingleFile';
+
+export { default as Upload } from './Upload';
+export { default as UploadBox } from './UploadBox';

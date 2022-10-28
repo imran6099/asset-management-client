@@ -6,7 +6,7 @@ import userReducer from './slices/user';
 import categoryReducer from './slices/category';
 import itemReducer from './slices/item';
 import issueReducer from './slices/issue';
-
+import dataReducer from './slices/data';
 // ----------------------------------------------------------------------
 
 const createNoopStorage = () => ({
@@ -27,7 +27,7 @@ const rootPersistConfig = {
   key: 'root',
   storage,
   keyPrefix: 'redux-',
-  whitelist: ['company', 'user'],
+  whitelist: ['company', 'user', 'data', 'item', 'category', 'issue'],
 };
 
 const rootReducer = combineReducers({
@@ -36,6 +36,7 @@ const rootReducer = combineReducers({
   category: categoryReducer,
   item: itemReducer,
   issue: issueReducer,
+  bulk: dataReducer,
 });
 
 export { rootPersistConfig, rootReducer };

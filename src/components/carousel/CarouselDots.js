@@ -1,42 +1,38 @@
 // @mui
 import { styled } from '@mui/material/styles';
-import { Box } from '@mui/material';
+import { Box, Stack } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
-const RootStyle = styled(Box, {
+const StyledRoot = styled(Box, {
   shouldForwardProp: (prop) => prop !== 'rounded',
-})(({ rounded }) => ({
+})(({ rounded, theme }) => ({
+  zIndex: 9,
   display: 'flex',
-  listStyle: 'none',
   alignItems: 'center',
   justifyContent: 'center',
+  color: theme.palette.primary.main,
   '& li': {
     width: 18,
     height: 18,
     opacity: 0.32,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     cursor: 'pointer',
-  },
-  '& li.slick-active': {
-    opacity: 1,
-    ...(rounded && {
-      '& .dotActive': {
-        width: 16,
-        borderRadius: 6,
-      },
-    }),
+    '&.slick-active': {
+      opacity: 1,
+      ...(rounded && {
+        '& span': {
+          width: 16,
+          borderRadius: 6,
+        },
+      }),
+    },
   },
 }));
 
-const DotWrapStyle = styled('div')(() => ({
-  width: '100%',
-  height: '100%',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-}));
-
-const DotStyle = styled('span')(({ theme }) => ({
+const StyledDot = styled('span')(({ theme }) => ({
   width: 8,
   height: 8,
   borderRadius: '50%',
@@ -49,26 +45,26 @@ const DotStyle = styled('span')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 export default function CarouselDots(props) {
-  const color = props?.color;
   const rounded = props?.rounded || false;
+
+  const sx = props?.sx;
 
   return {
     appendDots: (dots) => (
       <>
-        <RootStyle rounded={rounded} component="ul" {...props}>
+        <StyledRoot component="ul" rounded={rounded} sx={sx} {...props}>
           {dots}
-        </RootStyle>
+        </StyledRoot>
       </>
     ),
     customPaging: () => (
-      <DotWrapStyle>
-        <DotStyle
-          className="dotActive"
+      <Stack component="div" alignItems="center" justifyContent="center" sx={{ width: 1, height: 1 }}>
+        <StyledDot
           sx={{
-            bgcolor: color || 'primary.main',
+            bgcolor: 'currentColor',
           }}
         />
-      </DotWrapStyle>
+      </Stack>
     ),
   };
 }

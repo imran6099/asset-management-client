@@ -7,7 +7,7 @@ import { Avatar, Checkbox, TableRow, TableCell, Typography, MenuItem } from '@mu
 import Label from '../../../../components/Label';
 import Iconify from '../../../../components/Iconify';
 import { TableMoreMenu } from '../../../../components/table';
-
+import Image from '../../../../components/Image';
 // ----------------------------------------------------------------------
 
 UserTableRow.propTypes = {
@@ -16,11 +16,12 @@ UserTableRow.propTypes = {
   onEditRow: PropTypes.func,
   onSelectRow: PropTypes.func,
   onDeleteRow: PropTypes.func,
+  onShowMore: PropTypes.func,
 };
 
-export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onShowMore }) {
   const theme = useTheme();
-  const { itemNumber, name, imageUrl, price, category, dateOfPurchase, location, status } = row;
+  const { itemNumber, name, images, price, category, dateOfPurchase, location, status } = row;
 
   const [openMenu, setOpenMenuActions] = useState(null);
 
@@ -39,12 +40,19 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
       </TableCell>
 
       <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-        <Avatar alt={name} src={imageUrl} sx={{ mr: 2 }} />
+        <Image
+          disabledEffect
+          visibleByDefault
+          alt={name}
+          src={images}
+          sx={{ borderRadius: 1.5, width: 48, height: 48 }}
+        />
+      </TableCell>
+      <TableCell align="left">
         <Typography variant="subtitle2" noWrap>
           {name}
         </Typography>
       </TableCell>
-
       <TableCell align="left">{itemNumber}</TableCell>
       <TableCell align="left">{price}</TableCell>
 
@@ -96,7 +104,7 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
               </MenuItem>
               <MenuItem
                 onClick={() => {
-                  onEditRow();
+                  onShowMore();
                   handleCloseMenu();
                 }}
               >

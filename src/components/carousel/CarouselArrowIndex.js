@@ -1,84 +1,67 @@
 import PropTypes from 'prop-types';
 // @mui
-import { alpha, useTheme, styled } from '@mui/material/styles';
+import { useTheme, styled } from '@mui/material/styles';
 import { Typography, Box, IconButton } from '@mui/material';
+// utils
+import { bgBlur } from '../../utils/cssStyles';
 //
-import Iconify from '../Iconify';
+import { LeftIcon, RightIcon } from './Icon';
 
 // ----------------------------------------------------------------------
 
-const RootStyle = styled(Box)(({ theme }) => ({
+const StyledRoot = styled(Box)(({ theme }) => ({
+  // ...bgBlur({
+  //   opacity: 0.48,
+  //   color: theme.palette.grey[900],
+  // }),
   zIndex: 9,
-  display: 'flex',
+  display: 'inline-flex',
   alignItems: 'center',
   position: 'absolute',
   bottom: theme.spacing(2),
   right: theme.spacing(2),
+  padding: theme.spacing(0.25),
   color: theme.palette.common.white,
   borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.grey[900], 0.48),
 }));
 
-const ArrowStyle = styled(IconButton)(({ theme }) => ({
-  padding: 6,
+const StyledIconButton = styled(IconButton)({
+  width: 28,
+  height: 28,
+  padding: 0,
   opacity: 0.48,
-  color: theme.palette.common.white,
   '&:hover': { opacity: 1 },
-}));
+});
 
 // ----------------------------------------------------------------------
 
 CarouselArrowIndex.propTypes = {
-  customIcon: PropTypes.oneOfType([PropTypes.element, PropTypes.string]),
-  index: PropTypes.number,
+  sx: PropTypes.object,
   onNext: PropTypes.func,
-  onPrevious: PropTypes.func,
+  index: PropTypes.number,
   total: PropTypes.number,
+  onPrevious: PropTypes.func,
+  icon: PropTypes.oneOfType([PropTypes.element, PropTypes.string]),
 };
 
-export default function CarouselArrowIndex({ index, total, onNext, onPrevious, customIcon, ...other }) {
+export default function CarouselArrowIndex({ index, total, onNext, onPrevious, icon, sx, ...other }) {
   const theme = useTheme();
 
   const isRTL = theme.direction === 'rtl';
 
   return (
-    <RootStyle {...other}>
-      <ArrowStyle size="small" onClick={onPrevious}>
-        {leftIcon(customIcon, isRTL)}
-      </ArrowStyle>
+    <StyledRoot sx={sx} {...other}>
+      <StyledIconButton color="inherit" onClick={onPrevious}>
+        <LeftIcon icon={icon} isRTL={isRTL} />
+      </StyledIconButton>
 
-      <Typography variant="subtitle2">
+      <Typography variant="subtitle2" component="span" sx={{ mx: 0.25 }}>
         {index + 1}/{total}
       </Typography>
 
-      <ArrowStyle size="small" onClick={onNext}>
-        {rightIcon(customIcon, isRTL)}
-      </ArrowStyle>
-    </RootStyle>
+      <StyledIconButton color="inherit" onClick={onNext}>
+        <RightIcon icon={icon} isRTL={isRTL} />
+      </StyledIconButton>
+    </StyledRoot>
   );
 }
-
-// ----------------------------------------------------------------------
-
-const leftIcon = (customIcon, isRTL) => (
-  <Iconify
-    icon={customIcon ? customIcon : 'eva:arrow-right-fill'}
-    sx={{
-      width: 20,
-      height: 20,
-      transform: ' scaleX(-1)',
-      ...(isRTL && { transform: ' scaleX(1)' }),
-    }}
-  />
-);
-
-const rightIcon = (customIcon, isRTL) => (
-  <Iconify
-    icon={customIcon ? customIcon : 'eva:arrow-right-fill'}
-    sx={{
-      width: 20,
-      height: 20,
-      ...(isRTL && { transform: ' scaleX(-1)' }),
-    }}
-  />
-);

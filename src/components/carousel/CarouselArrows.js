@@ -1,123 +1,121 @@
 import PropTypes from 'prop-types';
 // @mui
-import { useTheme, styled } from '@mui/material/styles';
-import { Box, Stack } from '@mui/material';
+import { useTheme, styled, alpha } from '@mui/material/styles';
+import { Stack, IconButton } from '@mui/material';
 //
-import Iconify from '../Iconify';
-import { IconButtonAnimate } from '../animate';
+import { LeftIcon, RightIcon } from './Icon';
 
 // ----------------------------------------------------------------------
 
-const BUTTON_SIZE = 40;
-
-const ArrowStyle = styled(IconButtonAnimate, {
-  shouldForwardProp: (prop) => prop !== 'filled',
-})(({ filled, theme }) => ({
-  width: BUTTON_SIZE,
-  height: BUTTON_SIZE,
-  cursor: 'pointer',
-  borderRadius: '50%',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  '&:hover': {
-    color: theme.palette.text.primary,
-  },
-  ...(filled && {
-    opacity: 0.48,
+const StyledIconButton = styled(IconButton, {
+  shouldForwardProp: (prop) => prop !== 'filled' && prop !== 'hasChildren' && prop !== 'shape',
+})(({ filled, shape, hasChildren, theme }) => ({
+  color: 'inherit',
+  transition: theme.transitions.create('all', {
+    duration: theme.transitions.duration.shorter,
+  }),
+  ...(shape === 'rounded' && {
     borderRadius: Number(theme.shape.borderRadius) * 1.5,
-    color: theme.palette.common.white,
-    backgroundColor: theme.palette.grey[900],
+  }),
+  ...(!filled && {
+    opacity: 0.48,
     '&:hover': {
       opacity: 1,
+    },
+  }),
+  ...(filled && {
+    color: alpha(theme.palette.common.white, 0.8),
+    backgroundColor: alpha(theme.palette.grey[900], 0.48),
+    '&:hover': {
       color: theme.palette.common.white,
       backgroundColor: theme.palette.grey[900],
     },
+  }),
+  ...(hasChildren && {
+    zIndex: 9,
+    top: '50%',
+    position: 'absolute',
+    marginTop: theme.spacing(-2.5),
   }),
 }));
 
 // ----------------------------------------------------------------------
 
 CarouselArrows.propTypes = {
-  children: PropTypes.node,
-  customIcon: PropTypes.oneOfType([PropTypes.element, PropTypes.string]),
+  sx: PropTypes.object,
   filled: PropTypes.bool,
   onNext: PropTypes.func,
+  children: PropTypes.node,
   onPrevious: PropTypes.func,
+  leftButtonProps: PropTypes.object,
+  rightButtonProps: PropTypes.object,
+  shape: PropTypes.oneOf(['circular', 'rounded']),
+  icon: PropTypes.oneOfType([PropTypes.element, PropTypes.string]),
 };
 
 export default function CarouselArrows({
+  shape = 'circular',
   filled = false,
-  customIcon, // Set icon right
+  icon,
   onNext,
   onPrevious,
   children,
+  leftButtonProps,
+  rightButtonProps,
+  sx,
   ...other
 }) {
   const theme = useTheme();
 
   const isRTL = theme.direction === 'rtl';
 
-  const style = {
-    position: 'absolute',
-    mt: -2.5,
-    top: '50%',
-    zIndex: 9,
-  };
+  const hasChildren = !!children;
 
-  if (children) {
+  if (hasChildren) {
     return (
-      <Box {...other}>
-        <Box className="arrow left" sx={{ ...style, left: 0 }}>
-          <ArrowStyle filled={filled} onClick={onPrevious}>
-            {leftIcon(customIcon, isRTL)}
-          </ArrowStyle>
-        </Box>
+      <Stack sx={sx} {...other}>
+        <StyledIconButton
+          filled={filled}
+          shape={shape}
+          hasChildren={!!children}
+          onClick={onPrevious}
+          {...leftButtonProps}
+          sx={{
+            left: 16,
+            ...leftButtonProps?.sx,
+          }}
+        >
+          <LeftIcon icon={icon} isRTL={isRTL} />
+        </StyledIconButton>
 
         {children}
 
-        <Box className="arrow right" sx={{ ...style, right: 0 }}>
-          <ArrowStyle filled={filled} onClick={onNext}>
-            {rightIcon(customIcon, isRTL)}
-          </ArrowStyle>
-        </Box>
-      </Box>
+        <StyledIconButton
+          filled={filled}
+          shape={shape}
+          hasChildren={!!children}
+          onClick={onNext}
+          {...rightButtonProps}
+          sx={{
+            right: 16,
+            ...rightButtonProps?.sx,
+          }}
+        >
+          <RightIcon icon={icon} isRTL={isRTL} />
+        </StyledIconButton>
+      </Stack>
     );
   }
 
   return (
-    <Stack direction="row" spacing={1} {...other}>
-      <ArrowStyle className="arrow left" filled={filled} onClick={onPrevious}>
-        {leftIcon(customIcon, isRTL)}
-      </ArrowStyle>
-      <ArrowStyle className="arrow right" filled={filled} onClick={onNext}>
-        {rightIcon(customIcon, isRTL)}
-      </ArrowStyle>
+    <Stack direction="row" alignItems="center" display="inline-flex" sx={sx} {...other}>
+      <StyledIconButton filled={filled} shape={shape} onClick={onPrevious} {...leftButtonProps}>
+        <LeftIcon icon={icon} isRTL={isRTL} />
+      </StyledIconButton>
+
+      <StyledIconButton filled={filled} shape={shape} onClick={onNext} {...rightButtonProps}>
+        <RightIcon icon={icon} isRTL={isRTL} />
+      </StyledIconButton>
     </Stack>
   );
 }
-
-// ----------------------------------------------------------------------
-
-const leftIcon = (customIcon, isRTL) => (
-  <Iconify
-    icon={customIcon ? customIcon : 'eva:arrow-right-fill'}
-    sx={{
-      width: 20,
-      height: 20,
-      transform: ' scaleX(-1)',
-      ...(isRTL && { transform: ' scaleX(1)' }),
-    }}
-  />
-);
-
-const rightIcon = (customIcon, isRTL) => (
-  <Iconify
-    icon={customIcon ? customIcon : 'eva:arrow-right-fill'}
-    sx={{
-      width: 20,
-      height: 20,
-      ...(isRTL && { transform: ' scaleX(-1)' }),
-    }}
-  />
-);
