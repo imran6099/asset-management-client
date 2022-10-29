@@ -1,10 +1,9 @@
-import merge from 'lodash/merge';
 // @mui
-import { useTheme, alpha } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles';
 
 // ----------------------------------------------------------------------
 
-export default function useChart(options) {
+export default function BaseOptionChart() {
   const theme = useTheme();
 
   const LABEL_TOTAL = {
@@ -24,18 +23,15 @@ export default function useChart(options) {
     lineHeight: theme.typography.h3.lineHeight,
   };
 
-  const baseOptions = {
+  return {
     // Colors
     colors: [
       theme.palette.primary.main,
-      theme.palette.warning.main,
-      theme.palette.info.main,
-      theme.palette.error.main,
-      theme.palette.success.main,
-      theme.palette.warning.dark,
-      theme.palette.success.darker,
-      theme.palette.info.dark,
-      theme.palette.info.darker,
+      theme.palette.chart.yellow[0],
+      theme.palette.chart.blue[0],
+      theme.palette.chart.violet[0],
+      theme.palette.chart.green[0],
+      theme.palette.chart.red[0],
     ],
 
     // Chart
@@ -130,10 +126,9 @@ export default function useChart(options) {
     plotOptions: {
       // Bar
       bar: {
-        borderRadius: 4,
         columnWidth: '28%',
+        borderRadius: 4,
       },
-
       // Pie + Donut
       pie: {
         donut: {
@@ -144,19 +139,17 @@ export default function useChart(options) {
           },
         },
       },
-
       // Radialbar
       radialBar: {
         track: {
           strokeWidth: '100%',
-          background: alpha(theme.palette.grey[500], 0.16),
+          background: theme.palette.grey[500_16],
         },
         dataLabels: {
           value: LABEL_VALUE,
           total: LABEL_TOTAL,
         },
       },
-
       // Radar
       radar: {
         polygons: {
@@ -165,7 +158,6 @@ export default function useChart(options) {
           connectorColors: theme.palette.divider,
         },
       },
-
       // polarArea
       polarArea: {
         rings: {
@@ -195,6 +187,4 @@ export default function useChart(options) {
       },
     ],
   };
-
-  return merge(baseOptions, options);
 }

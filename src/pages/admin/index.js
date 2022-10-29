@@ -8,7 +8,7 @@ export default function Index() {
 
   useEffect(() => {
     if (router.pathname == '/admin') {
-      router.push('/admin/item');
+      router.push('/admin/insights');
     }
   });
 

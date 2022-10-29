@@ -11,7 +11,7 @@ const initialState = {
 };
 
 const slice = createSlice({
-  name: 'category',
+  name: 'data',
   initialState,
   reducers: {
     // START LOADING

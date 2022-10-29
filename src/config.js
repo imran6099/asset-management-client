@@ -1,7 +1,7 @@
 // @mui
 import { enUS, frFR, zhCN, viVN, arSD } from '@mui/material/locale';
 // routes
-import { PATH_DASHBOARD } from './routes/paths';
+import { PATH_ADMIN } from './routes/paths';
 
 // API
 // ----------------------------------------------------------------------
@@ -30,7 +30,7 @@ export const AUTH0_API = {
 export const MAPBOX_API = process.env.MAPBOX_API;
 
 // ROOT PATH AFTER LOGIN SUCCESSFUL
-export const PATH_AFTER_LOGIN = PATH_DASHBOARD.root; // as '/dashboard/app'
+export const PATH_AFTER_LOGIN = PATH_ADMIN.insights.root; // as '/dashboard/app'
 
 // LAYOUT
 // ----------------------------------------------------------------------

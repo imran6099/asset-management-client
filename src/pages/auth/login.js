@@ -10,7 +10,7 @@ import { PATH_AUTH } from '../../routes/paths';
 import useAuth from '../../hooks/useAuth';
 import useResponsive from '../../hooks/useResponsive';
 // guards
-// import GuestGuard from '../../guards/GuestGuard';
+import GuestGuard from '../../guards/GuestGuard';
 // components
 import Page from '../../components/Page';
 import Logo from '../../components/Logo';
@@ -71,53 +71,53 @@ export default function Login() {
   const mdUp = useResponsive('up', 'md');
 
   return (
-    // <GuestGuard>
-    <Page title="Login">
-      <RootStyle>
-        <HeaderStyle>
-          <Logo />
-        </HeaderStyle>
+    <GuestGuard>
+      <Page title="Login">
+        <RootStyle>
+          <HeaderStyle>
+            <Logo />
+          </HeaderStyle>
 
-        {mdUp && (
-          <SectionStyle>
-            <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
-              Hi, Welcome Back
-            </Typography>
-            <Image visibleByDefault disabledEffect src="/assets/illustrations/illustration_login.png" alt="login" />
-          </SectionStyle>
-        )}
+          {mdUp && (
+            <SectionStyle>
+              <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
+                Hi, Welcome Back
+              </Typography>
+              <Image visibleByDefault disabledEffect src="/assets/illustrations/illustration_login.png" alt="login" />
+            </SectionStyle>
+          )}
 
-        <Container maxWidth="sm">
-          <ContentStyle>
-            <Stack direction="row" alignItems="center" sx={{ mb: 5 }}>
-              <Box sx={{ flexGrow: 1 }}>
-                <Typography variant="h4" gutterBottom>
-                  Sign in to Aqoonsi
-                </Typography>
-                <Typography sx={{ color: 'text.secondary' }}>Enter your details below.</Typography>
-              </Box>
+          <Container maxWidth="sm">
+            <ContentStyle>
+              <Stack direction="row" alignItems="center" sx={{ mb: 5 }}>
+                <Box sx={{ flexGrow: 1 }}>
+                  <Typography variant="h4" gutterBottom>
+                    Sign in to Aqoonsi
+                  </Typography>
+                  <Typography sx={{ color: 'text.secondary' }}>Enter your details below.</Typography>
+                </Box>
 
-              <Tooltip title={capitalCase(method)} placement="right">
-                <>
-                  <Image
-                    disabledEffect
-                    alt={method}
-                    src={`https://minimal-assets-api-dev.vercel.app/assets/icons/auth/ic_${method}.png`}
-                    sx={{ width: 32, height: 32 }}
-                  />
-                </>
-              </Tooltip>
-            </Stack>
+                <Tooltip title={capitalCase(method)} placement="right">
+                  <>
+                    <Image
+                      disabledEffect
+                      alt={method}
+                      src={`https://minimal-assets-api-dev.vercel.app/assets/icons/auth/ic_${method}.png`}
+                      sx={{ width: 32, height: 32 }}
+                    />
+                  </>
+                </Tooltip>
+              </Stack>
 
-            {/* <Alert severity="info" sx={{ mb: 3 }}>
+              {/* <Alert severity="info" sx={{ mb: 3 }}>
               Use email : <strong>demo@minimals.cc</strong> / password :<strong> demo1234</strong>
             </Alert> */}
 
-            <LoginForm />
-          </ContentStyle>
-        </Container>
-      </RootStyle>
-    </Page>
-    // </GuestGuard>
+              <LoginForm />
+            </ContentStyle>
+          </Container>
+        </RootStyle>
+      </Page>
+    </GuestGuard>
   );
 }
