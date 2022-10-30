@@ -11,8 +11,9 @@ import { Box, Card, Grid, Stack, IconButton, InputAdornment } from '@mui/materia
 // routes
 // _mock
 // components
-import { FormProvider, RHFTextField } from '../../../components/hook-form';
+import { FormProvider, RHFTextField, RHFSelect } from '../../../components/hook-form';
 import Iconify from '../../../components/Iconify';
+import { ROLE } from './user.config';
 
 // ----------------------------------------------------------------------
 
@@ -95,6 +96,14 @@ export default function UserNewEditForm({ isEdit = false, currentUser, id, handl
             >
               <RHFTextField name="name" label="Full Name" />
               <RHFTextField name="email" label="Email Address" />
+              <RHFSelect name="location" label="Location" placeholder="Location">
+                <option value="" />
+                {ROLE.map((option) => (
+                  <option key={option.id} value={option.value}>
+                    {option.id}
+                  </option>
+                ))}
+              </RHFSelect>
               {!isEdit && (
                 <RHFTextField
                   name="password"

@@ -5,14 +5,11 @@ import { useRouter } from 'next/router';
 // @mui
 import {
   Box,
-  Tab,
-  Tabs,
   Card,
   Table,
   Switch,
   Button,
   Tooltip,
-  Divider,
   TableBody,
   Container,
   IconButton,
@@ -44,7 +41,7 @@ import { UserTableToolbar, UserTableRow } from '../../../sections/@dashboard/use
 import { getUsers } from '../../../redux/slices/user';
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteUser } from '../../../redux/thunk/user';
-
+import useAuth from '../../../hooks/useAuth';
 import { useSnackbar } from 'notistack';
 // ----------------------------------------------------------------------
 
@@ -85,7 +82,7 @@ export default function UserList() {
   } = useTable();
 
   const { enqueueSnackbar } = useSnackbar();
-
+  const { user } = useAuth();
   // Get Companies
   const dispatch = useDispatch();
 
@@ -107,7 +104,7 @@ export default function UserList() {
 
   const { push } = useRouter();
 
-  const [tableData, setTableData] = useState(users);
+  const [tableData, setTableData] = useState(users.filter((res) => res.id != user.id));
 
   const [filterName, setFilterName] = useState('');
 
