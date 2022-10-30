@@ -54,9 +54,6 @@ export default function UserNewEditForm({ isEdit = false, currentUser, id, handl
 
   const {
     reset,
-    watch,
-    control,
-    setValue,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
@@ -96,7 +93,7 @@ export default function UserNewEditForm({ isEdit = false, currentUser, id, handl
             >
               <RHFTextField name="name" label="Full Name" />
               <RHFTextField name="email" label="Email Address" />
-              <RHFSelect name="location" label="Location" placeholder="Location">
+              <RHFSelect name="role" label="Role" placeholder="Role">
                 <option value="" />
                 {ROLE.map((option) => (
                   <option key={option.id} value={option.value}>
