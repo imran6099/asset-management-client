@@ -12,7 +12,6 @@
 /.next/
 /.swc/
 /out/
-/src/firebase.config.js
 
 # production
 /build
