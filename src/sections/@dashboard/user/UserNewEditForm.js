@@ -1,32 +1,17 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 // form
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import { LoadingButton } from '@mui/lab';
-import {
-  Box,
-  Card,
-  Grid,
-  Stack,
-  Switch,
-  Typography,
-  FormControlLabel,
-  Button,
-  IconButton,
-  InputAdornment,
-} from '@mui/material';
+import { Box, Card, Grid, Stack, IconButton, InputAdornment } from '@mui/material';
 // utils
-import { fData } from '../../../utils/formatNumber';
 // routes
 // _mock
 // components
-import Label from '../../../components/Label';
-import { FormProvider, RHFSwitch, RHFTextField, RHFUploadAvatar } from '../../../components/hook-form';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { storage } from '../../../firebase.config';
+import { FormProvider, RHFTextField } from '../../../components/hook-form';
 import Iconify from '../../../components/Iconify';
 
 // ----------------------------------------------------------------------
