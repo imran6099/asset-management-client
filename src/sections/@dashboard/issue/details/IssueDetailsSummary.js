@@ -10,6 +10,7 @@ import { FormProvider, RHFSelect } from '../../../../components/hook-form';
 import Label from '../../../../components/Label';
 import { STATUS } from '../config.issue';
 import { LoadingButton } from '@mui/lab';
+import useAuth from '../../../../hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -20,6 +21,7 @@ ItemDetailsSummary.propTypes = {
 
 export default function ItemDetailsSummary({ issue, handleIssueUpdate, ...other }) {
   const { id, title, item, issuedBy, issuedDate, status } = issue;
+  const { user } = useAuth();
   const theme = useTheme();
 
   const defaultValues = {
@@ -102,21 +104,26 @@ export default function ItemDetailsSummary({ issue, handleIssueUpdate, ...other 
             {issuedDate?.split('T')[0]}
           </Typography>
         </Stack>
-        <Stack direction="row" justifyContent="space-between">
-          <RHFSelect name="status">
-            <option value="" />
-            {STATUS.map((option) => (
-              <option key={option.id} value={option.value}>
-                {option.id}
-              </option>
-            ))}
-          </RHFSelect>
-        </Stack>
-        <Stack direction="row" justifyContent="space-between">
-          <LoadingButton type="submit" variant="outlined" size="large" loading={isSubmitting}>
-            {'Update Issue Status'}
-          </LoadingButton>
-        </Stack>
+        {user.role === 'admin' && (
+          <>
+            <Stack direction="row" justifyContent="space-between">
+              <RHFSelect name="status">
+                <option value="" />
+                {STATUS.map((option) => (
+                  <option key={option.id} value={option.value}>
+                    {option.id}
+                  </option>
+                ))}
+              </RHFSelect>
+            </Stack>
+            <Stack direction="row" justifyContent="space-between">
+              <LoadingButton type="submit" variant="outlined" size="large" loading={isSubmitting}>
+                {'Update Issue Status'}
+              </LoadingButton>
+            </Stack>
+          </>
+        )}
+
         <Divider sx={{ borderStyle: 'dashed' }} />
       </Stack>
     </FormProvider>

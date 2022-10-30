@@ -37,9 +37,9 @@ export default function UserEdit() {
 
   const { id } = query;
 
-  const { user } = useSelector((state) => state);
+  const { userBase } = useSelector((state) => state);
 
-  const { users } = user;
+  const { users } = userBase;
 
   const currentUser = users.find((user) => paramCase(user.id) === id);
 

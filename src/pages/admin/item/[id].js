@@ -1,35 +1,43 @@
 import { useState } from 'react';
 // next
-import Head from 'next/head';
 import { useRouter } from 'next/router';
 // @mui
-import { Box, Tab, Tabs, Card, Grid, Divider, Container } from '@mui/material';
+import { Box, Card, Grid, Divider, Container } from '@mui/material';
+import { TabContext, TabPanel } from '@mui/lab';
 // redux
 import { useSelector } from '../../../redux/store';
 // routes
 import { PATH_ADMIN } from '../../../routes/paths';
+// hooks
+import useSettings from '../../../hooks/useSettings';
 // layouts
 import Layout from '../../../layouts';
-import Page from '../../../components/Page';
-
 // components
+import Page from '../../../components/Page';
 import Markdown from '../../../components/Markdown';
+import { SkeletonProduct } from '../../../components/skeleton';
 import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
-
 // sections
-import { ItemDetailsSummary, ItemDetailsCarousel } from '../../../sections/@dashboard/item/details';
-import RoleBasedGuard from '../../../guards/RoleBasedGuard';
+import { ItemDetailsSummary, ItemDetailsCarousel } from '../../../sections/@dashboard/item-details';
 
 // ----------------------------------------------------------------------
 
-ItemDetails.getLayout = (page) => <Layout>{page}</Layout>;
+// ----------------------------------------------------------------------
+
+EcommerceProductDetails.getLayout = function getLayout(page) {
+  return <Layout>{page}</Layout>;
+};
 
 // ----------------------------------------------------------------------
 
-export default function ItemDetails() {
-  const {
-    query: { id },
-  } = useRouter();
+export default function EcommerceProductDetails() {
+  const { themeStretch } = useSettings();
+
+  const [value, setValue] = useState('1');
+
+  const { query } = useRouter();
+
+  const { id } = query;
 
   const { item } = useSelector((state) => state);
 
@@ -37,73 +45,50 @@ export default function ItemDetails() {
 
   const currentItem = items.find((item) => item.id === id);
 
-  const [currentTab, setCurrentTab] = useState('description');
-
-  const TABS = [
-    {
-      value: 'description',
-      label: 'description',
-      component: currentItem ? <Markdown children={currentItem?.description} /> : null,
-    },
-  ];
-
   return (
-    <RoleBasedGuard roles={['admin', 'superAdmin']} hasContent={true}>
-      <Page title="Item: Create a new item">
-        <Container maxWidth={'lg'}>
-          <HeaderBreadcrumbs
-            heading="Create a new item"
-            links={[
-              { name: 'Admin', href: PATH_ADMIN.root },
-              { name: 'Item', href: PATH_ADMIN.item.list },
-              { name: currentItem.name || '' },
-            ]}
-          />
+    <Page title="Items: Item Details">
+      <Container maxWidth={themeStretch ? false : 'lg'}>
+        <HeaderBreadcrumbs
+          heading="Item Details"
+          links={[
+            { name: 'Dashboard', href: PATH_ADMIN.root },
+            {
+              name: 'Items',
+              href: PATH_ADMIN.item.root,
+            },
+            { name: id || '' },
+          ]}
+        />
 
-          {currentItem && (
-            <>
-              <Grid container spacing={3}>
+        {currentItem && (
+          <>
+            <Card>
+              <Grid container>
                 <Grid item xs={12} md={6} lg={7}>
-                  <ItemDetailsCarousel item={currentItem} />
+                  <ItemDetailsCarousel product={currentItem} />
                 </Grid>
-
                 <Grid item xs={12} md={6} lg={5}>
                   <ItemDetailsSummary item={currentItem} />
                 </Grid>
               </Grid>
-              <Card>
-                <Tabs
-                  value={currentTab}
-                  onChange={(event, newValue) => setCurrentTab(newValue)}
-                  sx={{ px: 3, bgcolor: 'background.neutral' }}
-                >
-                  {TABS.map((tab) => (
-                    <Tab key={tab.value} value={tab.value} label={tab.label} />
-                  ))}
-                </Tabs>
+            </Card>
 
+            <Card>
+              <TabContext value={value}>
                 <Divider />
 
-                {TABS.map(
-                  (tab) =>
-                    tab.value === currentTab && (
-                      <Box
-                        key={tab.value}
-                        sx={{
-                          ...(currentTab === 'description' && {
-                            p: 3,
-                          }),
-                        }}
-                      >
-                        {tab.component}
-                      </Box>
-                    )
-                )}
-              </Card>
-            </>
-          )}
-        </Container>
-      </Page>
-    </RoleBasedGuard>
+                <TabPanel value="1">
+                  <Box sx={{ p: 3 }}>
+                    <Markdown children={currentItem.description} />
+                  </Box>
+                </TabPanel>
+              </TabContext>
+            </Card>
+          </>
+        )}
+
+        {!currentItem && <SkeletonProduct />}
+      </Container>
+    </Page>
   );
 }

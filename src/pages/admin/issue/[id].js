@@ -72,7 +72,7 @@ export default function IssueDetails() {
   };
 
   return (
-    <RoleBasedGuard roles={['admin', 'superAdmin']} hasContent={true}>
+    <RoleBasedGuard roles={['admin', 'manager', 'user']} hasContent={true}>
       <Page title="Item: List">
         <Container maxWidth={'lg'}>
           <HeaderBreadcrumbs

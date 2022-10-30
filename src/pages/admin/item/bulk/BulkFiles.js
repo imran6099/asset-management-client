@@ -17,6 +17,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import ItemBulkData from './BulkTable';
 import { addItemsToCategory } from '../../../../redux/slices/data';
 import { v4 as uuidv4 } from 'uuid';
+import RoleBasedGuard from '../../../../guards/RoleBasedGuard';
+
 // ----------------------------------------------------------------------
 
 MaxWidthDialog.propTypes = {
@@ -48,7 +50,7 @@ export default function MaxWidthDialog({ handleOpen, handleClose, open, handleBu
   };
 
   return (
-    <>
+    <RoleBasedGuard roles={['admin', 'manager']}>
       <Button variant="outlined" onClick={handleOpen}>
         Max Width Dialog
       </Button>
@@ -91,6 +93,6 @@ export default function MaxWidthDialog({ handleOpen, handleClose, open, handleBu
           </Button>
         </DialogActions>
       </Dialog>
-    </>
+    </RoleBasedGuard>
   );
 }

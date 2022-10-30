@@ -66,7 +66,7 @@ export default function CompanyCreate() {
   };
 
   return (
-    <RoleBasedGuard roles={['admin', 'superAdmin']} hasContent={true}>
+    <RoleBasedGuard roles={['admin', 'manager']} hasContent={true}>
       <Page title="Item: Create a new item">
         <Container maxWidth={themeStretch ? false : 'lg'}>
           <HeaderBreadcrumbs

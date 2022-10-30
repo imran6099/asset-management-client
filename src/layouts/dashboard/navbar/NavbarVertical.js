@@ -86,10 +86,16 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
         <NavbarAccount isCollapse={isCollapse} />
       </Stack>
       {user.role === 'admin' && (
-        <NavSectionVertical navConfig={navConfig.filter((res) => res.role === 'admin')} isCollapse={isCollapse} />
+        <NavSectionVertical navConfig={navConfig.filter((res) => res.role.includes('admin'))} isCollapse={isCollapse} />
       )}
       {user.role === 'user' && (
-        <NavSectionVertical navConfig={navConfig.filter((res) => res.role === 'user')} isCollapse={isCollapse} />
+        <NavSectionVertical navConfig={navConfig.filter((res) => res.role.includes('user'))} isCollapse={isCollapse} />
+      )}
+      {user.role === 'manager' && (
+        <NavSectionVertical
+          navConfig={navConfig.filter((res) => res.role.includes('manager'))}
+          isCollapse={isCollapse}
+        />
       )}
 
       <Box sx={{ flexGrow: 1 }} />

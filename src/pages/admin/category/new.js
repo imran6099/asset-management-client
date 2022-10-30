@@ -53,7 +53,7 @@ export default function CategoryCreate() {
   };
 
   return (
-    <RoleBasedGuard roles={['admin', 'superAdmin']} hasContent={true}>
+    <RoleBasedGuard roles={['admin', 'manager']} hasContent={true}>
       <Page title="Category: Create a new category">
         <Container maxWidth={themeStretch ? false : 'lg'}>
           <HeaderBreadcrumbs

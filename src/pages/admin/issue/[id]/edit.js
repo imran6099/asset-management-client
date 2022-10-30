@@ -67,7 +67,7 @@ export default function UserEdit() {
   };
 
   return (
-    <RoleBasedGuard roles={['admin', 'superAdmin']}>
+    <RoleBasedGuard roles={['admin', 'manager']}>
       <Page title="Issue: Edit issue">
         <Container maxWidth={themeStretch ? false : 'lg'}>
           <HeaderBreadcrumbs

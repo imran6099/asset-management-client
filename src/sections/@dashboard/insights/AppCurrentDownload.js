@@ -41,9 +41,9 @@ AppCurrentDownload.propTypes = {
 export default function AppCurrentDownload({ title, subheader, chartData, chartColors, ...other }) {
   const theme = useTheme();
 
-  const chartLabels = chartData.map((i) => i.label);
+  const chartLabels = chartData.map((i) => i.name);
 
-  const chartSeries = chartData.map((i) => i.value);
+  const chartSeries = chartData.map((i) => i.items);
 
   const chartOptions = merge(BaseOptionChart(), {
     colors: chartColors,

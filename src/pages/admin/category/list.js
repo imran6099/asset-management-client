@@ -30,6 +30,7 @@ import Layout from '../../../layouts';
 
 // Guards
 import RoleBasedGuard from '../../../guards/RoleBasedGuard';
+import useAuth from '../../../hooks/useAuth';
 
 // components
 import Page from '../../../components/Page';
@@ -80,7 +81,7 @@ export default function UserList() {
   } = useTable();
 
   const { enqueueSnackbar } = useSnackbar();
-
+  const { user } = useAuth();
   // Get Companies
   const dispatch = useDispatch();
 
@@ -147,7 +148,7 @@ export default function UserList() {
   const isNotFound = !dataFiltered.length && !!filterName;
 
   return (
-    <RoleBasedGuard roles={['admin', 'superAdmin']} hasContent={true}>
+    <RoleBasedGuard roles={['admin', 'manager', 'user']} hasContent={true}>
       <Page title="Category: List">
         <Container maxWidth={themeStretch ? false : 'lg'}>
           <HeaderBreadcrumbs
@@ -158,11 +159,15 @@ export default function UserList() {
               { name: 'List' },
             ]}
             action={
-              <NextLink href={PATH_ADMIN.category.new} passHref>
-                <Button variant="contained" startIcon={<Iconify icon={'eva:plus-fill'} />}>
-                  New Category
-                </Button>
-              </NextLink>
+              <Box>
+                {user.role !== 'user' && (
+                  <NextLink href={PATH_ADMIN.category.new} passHref>
+                    <Button variant="contained" startIcon={<Iconify icon={'eva:plus-fill'} />}>
+                      New Category
+                    </Button>
+                  </NextLink>
+                )}
+              </Box>
             }
           />
 
@@ -183,11 +188,15 @@ export default function UserList() {
                       )
                     }
                     actions={
-                      <Tooltip title="Delete">
-                        <IconButton color="primary" onClick={() => handleDeleteRows(selected)}>
-                          <Iconify icon={'eva:trash-2-outline'} />
-                        </IconButton>
-                      </Tooltip>
+                      <Box>
+                        {user.role !== 'user' && (
+                          <Tooltip title="Delete">
+                            <IconButton color="primary" onClick={() => handleDeleteRows(selected)}>
+                              <Iconify icon={'eva:trash-2-outline'} />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                      </Box>
                     }
                   />
                 )}

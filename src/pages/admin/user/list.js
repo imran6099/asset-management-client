@@ -48,18 +48,12 @@ import { deleteUser } from '../../../redux/thunk/user';
 import { useSnackbar } from 'notistack';
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = ['all', 'active', 'banned'];
-
-const SECTOR_OPTIONS = ['all', 'admin', 'user'];
+const SECTOR_OPTIONS = ['all', 'admin', 'user', 'manager'];
 
 const TABLE_HEAD = [
   { id: 'name', label: 'User Name', align: 'left' },
   { id: 'role', label: 'role', align: 'left' },
-  { id: 'company', label: 'Company', align: 'left' },
   { id: 'email', label: 'Email', align: 'left' },
-  { id: 'mobile', label: 'Mobile', align: 'left' },
-  { id: 'isVerified', label: 'Verified', align: 'center' },
-  { id: 'status', label: 'Status', align: 'left' },
   { id: '' },
 ];
 
@@ -105,9 +99,9 @@ export default function UserList() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
-  const { user } = useSelector((state) => state);
+  const { userBase } = useSelector((state) => state);
 
-  const { users } = user;
+  const { users } = userBase;
 
   const { themeStretch } = useSettings();
 
@@ -119,7 +113,7 @@ export default function UserList() {
 
   const [filterRole, setFilterRole] = useState('all');
 
-  const { currentTab: filterStatus, onChangeTab: onChangeFilterStatus } = useTabs('all');
+  const { currentTab: filterStatus } = useTabs('all');
 
   const handleFilterName = (filterName) => {
     setFilterName(filterName);
@@ -194,21 +188,6 @@ export default function UserList() {
           />
 
           <Card>
-            <Tabs
-              allowScrollButtonsMobile
-              variant="scrollable"
-              scrollButtons="auto"
-              value={filterStatus}
-              onChange={onChangeFilterStatus}
-              sx={{ px: 2, bgcolor: 'background.neutral' }}
-            >
-              {STATUS_OPTIONS.map((tab) => (
-                <Tab disableRipple key={tab} label={tab} value={tab} />
-              ))}
-            </Tabs>
-
-            <Divider />
-
             <UserTableToolbar
               filterName={filterName}
               filterRole={filterRole}

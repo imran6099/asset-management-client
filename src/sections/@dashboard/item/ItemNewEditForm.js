@@ -145,8 +145,6 @@ export default function ItemNewEditForm({ isEdit = false, id, currentItem, handl
   //   setValue('imageUrl', '');
   // };
 
-  console.log(values);
-
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Grid container spacing={3}>

@@ -30,13 +30,6 @@ export const PATH_PAGE = {
 
 export const PATH_ADMIN = {
   root: ROOTS_ADMIN,
-  company: {
-    root: path(ROOTS_ADMIN, '/company'),
-    new: path(ROOTS_ADMIN, '/company/new'),
-    list: path(ROOTS_ADMIN, '/company/list'),
-    profile: path(ROOTS_ADMIN, '/company/profile'),
-    edit: (id) => path(ROOTS_ADMIN, `/company/${id}/edit`),
-  },
   insights: {
     root: path(ROOTS_ADMIN, '/insights'),
   },

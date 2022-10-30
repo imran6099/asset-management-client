@@ -29,12 +29,12 @@ const rootPersistConfig = {
   key: 'root',
   storage,
   keyPrefix: 'redux-',
-  whitelist: ['company', 'user', 'data', 'item', 'category', 'issue', 'insight'],
+  whitelist: ['company', 'userBase', 'data', 'item', 'category', 'issue', 'insight'],
 };
 
 const rootReducer = combineReducers({
   company: companyReducer,
-  user: userReducer,
+  userBase: userReducer,
   category: categoryReducer,
   item: itemReducer,
   issue: issueReducer,

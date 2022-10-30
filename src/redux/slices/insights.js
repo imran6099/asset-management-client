@@ -13,11 +13,10 @@ const initialState = {
     totalIssues: 0,
     totalCategories: 0,
   },
-  itemsBasedOnStatus: {
-    activeItems: 0,
-    inactiveItems: 0,
-    damagedItems: 0,
-  },
+  itemsBasedOnStatus: [],
+  issuesBasedOnStatus: [],
+  itemsBasedOnLocation: [],
+  itemsBasedOnCategory: [],
 };
 
 const slice = createSlice({
@@ -47,6 +46,21 @@ const slice = createSlice({
       state.error = null;
       state.itemsBasedOnStatus = action.payload;
     },
+    laodIssueOnStatusSuccess(state, action) {
+      state.isLoading = false;
+      state.error = null;
+      state.issuesBasedOnStatus = action.payload;
+    },
+    laodItemOnLocationSuccess(state, action) {
+      state.isLoading = false;
+      state.error = null;
+      state.itemsBasedOnLocation = action.payload;
+    },
+    laodItemOnCategorySuccess(state, action) {
+      state.isLoading = false;
+      state.error = null;
+      state.itemsBasedOnCategory = action.payload;
+    },
   },
 });
 
@@ -75,6 +89,42 @@ export function getItemWithStatus() {
     try {
       const response = await axios.get('/insights/get-items-based-on-status');
       dispatch(slice.actions.laodItemOnStatusSuccess(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
+export function getIssueWithStatus() {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.get('/insights/get-issues-based-on-status');
+      dispatch(slice.actions.laodIssueOnStatusSuccess(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
+export function getItemWithLocation() {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.get('/insights/get-items-based-on-location');
+      dispatch(slice.actions.laodItemOnLocationSuccess(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
+export function getItemWithCategory() {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.get('/insights/get-items-based-on-category');
+      dispatch(slice.actions.laodItemOnCategorySuccess(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }

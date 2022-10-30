@@ -6,13 +6,13 @@ import { fShortenNumber } from '../../../utils/formatNumber';
 
 // ----------------------------------------------------------------------
 
-BookingBookedRoom.propTypes = {
+IssuesBasedOnStatus.propTypes = {
   title: PropTypes.string,
   subheader: PropTypes.string,
   data: PropTypes.array.isRequired,
 };
 
-export default function BookingBookedRoom({ title, subheader, data, ...other }) {
+export default function IssuesBasedOnStatus({ title, subheader, data, ...other }) {
   return (
     <Card {...other}>
       <CardHeader title={title} subheader={subheader} />
@@ -39,8 +39,8 @@ export default function BookingBookedRoom({ title, subheader, data, ...other }) 
                   height: 12,
                   borderRadius: 0.5,
                   bgcolor: 'success.main',
-                  ...(progress.status === 'inactive' && { bgcolor: 'warning.main' }),
-                  ...(progress.status === 'damaged' && { bgcolor: 'error.main' }),
+                  ...(progress.status === 'under review' && { bgcolor: 'warning.main' }),
+                  ...(progress.status === 'rejected' && { bgcolor: 'error.main' }),
                 }}
               />
 

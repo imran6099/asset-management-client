@@ -45,6 +45,7 @@ import { destroyData } from '../../../redux/slices/data';
 import { getCategories } from '../../../redux/slices/category';
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteItem, createManyItems, deleteManyItem } from '../../../redux/thunk/item';
+import useAuth from '../../../hooks/useAuth';
 
 import { useSnackbar } from 'notistack';
 import MaxWidthDialog from './bulk/BulkFiles';
@@ -92,6 +93,8 @@ export default function ItemList() {
     onChangePage,
     onChangeRowsPerPage,
   } = useTable();
+
+  const { user } = useAuth();
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -220,7 +223,7 @@ export default function ItemList() {
   };
 
   return (
-    <RoleBasedGuard roles={['admin', 'superAdmin']} hasContent={true}>
+    <RoleBasedGuard roles={['admin', 'manager', 'user']} hasContent={true}>
       <Page title="Item: List">
         <Container maxWidth={themeStretch ? false : 'lg'}>
           <HeaderBreadcrumbs
@@ -232,20 +235,24 @@ export default function ItemList() {
             ]}
             action={
               <Box>
-                <NextLink href={PATH_ADMIN.item.new} passHref>
-                  <Button variant="contained" startIcon={<Iconify icon={'eva:plus-fill'} />}>
-                    New item
-                  </Button>
-                </NextLink>
+                {user.role !== 'user' && (
+                  <Box>
+                    <NextLink href={PATH_ADMIN.item.new} passHref>
+                      <Button variant="contained" startIcon={<Iconify icon={'eva:plus-fill'} />}>
+                        New item
+                      </Button>
+                    </NextLink>
 
-                <Button
-                  sx={{ m: 2 }}
-                  onClick={handleOpen}
-                  variant="outlined"
-                  startIcon={<Iconify icon={'eva:plus-fill'} />}
-                >
-                  Upload CSV
-                </Button>
+                    <Button
+                      sx={{ m: 2 }}
+                      onClick={handleOpen}
+                      variant="outlined"
+                      startIcon={<Iconify icon={'eva:plus-fill'} />}
+                    >
+                      Upload CSV
+                    </Button>
+                  </Box>
+                )}
               </Box>
             }
           />
@@ -296,11 +303,15 @@ export default function ItemList() {
                       )
                     }
                     actions={
-                      <Tooltip title="Delete">
-                        <IconButton color="primary" onClick={() => handleDeleteRows(selected)}>
-                          <Iconify icon={'eva:trash-2-outline'} />
-                        </IconButton>
-                      </Tooltip>
+                      <Box>
+                        {user.role !== 'user' && (
+                          <Tooltip title="Delete">
+                            <IconButton color="primary" onClick={() => handleDeleteRows(selected)}>
+                              <Iconify icon={'eva:trash-2-outline'} />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                      </Box>
                     }
                   />
                 )}
