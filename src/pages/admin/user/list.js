@@ -44,7 +44,7 @@ import { UserTableToolbar, UserTableRow } from '../../../sections/@dashboard/use
 import { getUsers } from '../../../redux/slices/user';
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteUser } from '../../../redux/thunk/user';
-
+import useAuth from '../../../hooks/useAuth';
 import { useSnackbar } from 'notistack';
 // ----------------------------------------------------------------------
 
@@ -102,12 +102,13 @@ export default function UserList() {
   const { userBase } = useSelector((state) => state);
 
   const { users } = userBase;
+  const { user } = useAuth();
 
   const { themeStretch } = useSettings();
 
   const { push } = useRouter();
 
-  const [tableData, setTableData] = useState(users);
+  const [tableData, setTableData] = useState(users.filter((res) => res.id != user.id));
 
   const [filterName, setFilterName] = useState('');
 

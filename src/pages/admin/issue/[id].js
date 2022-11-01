@@ -91,7 +91,7 @@ export default function IssueDetails() {
                   <IssueDetailsSummary issue={currentItem} handleIssueUpdate={handleIssueUpdate} />
                 </Grid>
               </Grid>
-              <Card>
+              <Card sx={{ marginTop: '2%' }}>
                 <Tabs
                   value={currentTab}
                   onChange={(event, newValue) => setCurrentTab(newValue)}

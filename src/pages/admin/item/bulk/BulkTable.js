@@ -105,8 +105,6 @@ export default function ItemBulkData({ handleCategoryUpdate }) {
 
   const { themeStretch } = useSettings();
 
-  const { push } = useRouter();
-
   const [tableData, setTableData] = useState(bulk?.data || []);
 
   const [filterName, setFilterName] = useState('');
@@ -114,33 +112,6 @@ export default function ItemBulkData({ handleCategoryUpdate }) {
   const handleFilterName = (filterName) => {
     setFilterName(filterName);
     setPage(0);
-  };
-
-  const handleDeleteRow = async (id) => {
-    const reduxResponse = await dispatch(deleteCategory(id));
-    if (reduxResponse.type === 'category/remove/rejected') {
-      enqueueSnackbar('Failed', {
-        variant: 'error',
-      });
-    } else if (reduxResponse.type === 'category/remove/fulfilled') {
-      enqueueSnackbar('Done', {
-        variant: 'success',
-      });
-      const deleteRow = tableData.filter((row) => row.id !== id);
-      setSelected([]);
-      setTableData(deleteRow);
-      await dispatch(getCategories());
-    }
-  };
-
-  const handleDeleteRows = (selected) => {
-    const deleteRows = tableData.filter((row) => !selected.includes(row.id));
-    setSelected([]);
-    setTableData(deleteRows);
-  };
-
-  const handleEditRow = (id) => {
-    push(PATH_ADMIN.category.edit(id));
   };
 
   const dataFiltered = applySortFilter({
@@ -171,13 +142,6 @@ export default function ItemBulkData({ handleCategoryUpdate }) {
                     tableData.map((row) => row.id)
                   )
                 }
-                actions={
-                  <Tooltip title="Delete">
-                    <IconButton color="primary" onClick={() => handleDeleteRows(selected)}>
-                      <Iconify icon={'eva:trash-2-outline'} />
-                    </IconButton>
-                  </Tooltip>
-                }
               />
             )}
 
@@ -206,8 +170,6 @@ export default function ItemBulkData({ handleCategoryUpdate }) {
                     index={index}
                     selected={selected.includes(row.id)}
                     onSelectRow={() => onSelectRow(row.id)}
-                    onDeleteRow={() => handleDeleteRow(row.id)}
-                    onEditRow={() => handleEditRow(row.id)}
                   />
                 ))}
 

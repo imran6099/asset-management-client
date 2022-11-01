@@ -127,7 +127,7 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
                 }}
               >
                 <Iconify icon={'eva:edit-fill'} />
-                New Issue
+                New Event
               </MenuItem>
             </>
           }

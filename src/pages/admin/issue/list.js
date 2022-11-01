@@ -194,10 +194,10 @@ export default function UserList() {
 
   return (
     <RoleBasedGuard roles={['admin', 'manager', 'user']} hasContent={true}>
-      <Page title="Issue: List">
+      <Page title="Events: List">
         <Container maxWidth={themeStretch ? false : 'lg'}>
           <HeaderBreadcrumbs
-            heading="Issue List"
+            heading="Events List"
             links={[
               { name: 'ADMIN', href: PATH_ADMIN.root },
               { name: 'Issue', href: PATH_ADMIN.issue.root },
