@@ -84,7 +84,7 @@ export default function MaxWidthDialog({ handleOpen, handleClose, open, handleBu
         </DialogContent>
         <DialogActions>
           {bulk.data?.length > 0 && (
-            <Button onClick={() => handleBulkUpload(bulk.data)} variant="outlined" disabled={!bulk.isLoading}>
+            <Button onClick={() => handleBulkUpload(bulk.data)} variant="outlined">
               Upload Data
             </Button>
           )}

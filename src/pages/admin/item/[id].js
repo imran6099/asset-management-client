@@ -2,8 +2,7 @@ import { useState } from 'react';
 // next
 import { useRouter } from 'next/router';
 // @mui
-import { Box, Card, Grid, Divider, Container } from '@mui/material';
-import { TabContext, TabPanel } from '@mui/lab';
+import { Box, Card, Grid, Divider, Container, Tab, Tabs } from '@mui/material';
 // redux
 import { useSelector } from '../../../redux/store';
 // routes
@@ -33,8 +32,6 @@ EcommerceProductDetails.getLayout = function getLayout(page) {
 export default function EcommerceProductDetails() {
   const { themeStretch } = useSettings();
 
-  const [value, setValue] = useState('1');
-
   const { query } = useRouter();
 
   const { id } = query;
@@ -44,6 +41,16 @@ export default function EcommerceProductDetails() {
   const { items } = item;
 
   const currentItem = items.find((item) => item.id === id);
+
+  const [currentTab, setCurrentTab] = useState('description');
+
+  const TABS = [
+    {
+      value: 'description',
+      label: 'description',
+      component: currentItem ? <Markdown children={currentItem?.description} /> : null,
+    },
+  ];
 
   return (
     <Page title="Items: Item Details">
@@ -73,16 +80,34 @@ export default function EcommerceProductDetails() {
               </Grid>
             </Card>
 
-            <Card>
-              <TabContext value={value}>
-                <Divider />
+            <Card sx={{ marginTop: '2%' }}>
+              <Tabs
+                value={currentTab}
+                onChange={(event, newValue) => setCurrentTab(newValue)}
+                sx={{ px: 3, bgcolor: 'background.neutral' }}
+              >
+                {TABS.map((tab) => (
+                  <Tab key={tab.value} value={tab.value} label={tab.label} />
+                ))}
+              </Tabs>
 
-                <TabPanel value="1">
-                  <Box sx={{ p: 3 }}>
-                    <Markdown children={currentItem.description} />
-                  </Box>
-                </TabPanel>
-              </TabContext>
+              <Divider />
+
+              {TABS.map(
+                (tab) =>
+                  tab.value === currentTab && (
+                    <Box
+                      key={tab.value}
+                      sx={{
+                        ...(currentTab === 'description' && {
+                          p: 3,
+                        }),
+                      }}
+                    >
+                      {tab.component}
+                    </Box>
+                  )
+              )}
             </Card>
           </>
         )}

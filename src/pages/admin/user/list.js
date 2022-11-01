@@ -99,6 +99,7 @@ export default function UserList() {
   const { userBase } = useSelector((state) => state);
 
   const { users } = userBase;
+  const { user } = useAuth();
 
   const { themeStretch } = useSettings();
 
