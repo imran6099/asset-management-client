@@ -5,14 +5,11 @@ import { useRouter } from 'next/router';
 // @mui
 import {
   Box,
-  Tab,
-  Tabs,
   Card,
   Table,
   Switch,
   Button,
   Tooltip,
-  Divider,
   TableBody,
   Container,
   IconButton,
@@ -85,7 +82,7 @@ export default function UserList() {
   } = useTable();
 
   const { enqueueSnackbar } = useSnackbar();
-
+  const { user } = useAuth();
   // Get Companies
   const dispatch = useDispatch();
 

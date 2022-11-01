@@ -1,33 +1,19 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 // form
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import { LoadingButton } from '@mui/lab';
-import {
-  Box,
-  Card,
-  Grid,
-  Stack,
-  Switch,
-  Typography,
-  FormControlLabel,
-  Button,
-  IconButton,
-  InputAdornment,
-} from '@mui/material';
+import { Box, Card, Grid, Stack, IconButton, InputAdornment } from '@mui/material';
 // utils
-import { fData } from '../../../utils/formatNumber';
 // routes
 // _mock
 // components
-import Label from '../../../components/Label';
-import { FormProvider, RHFSwitch, RHFTextField, RHFUploadAvatar } from '../../../components/hook-form';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { storage } from '../../../firebase.config';
+import { FormProvider, RHFTextField, RHFSelect } from '../../../components/hook-form';
 import Iconify from '../../../components/Iconify';
+import { ROLE } from './user.config';
 
 // ----------------------------------------------------------------------
 
@@ -68,9 +54,6 @@ export default function UserNewEditForm({ isEdit = false, currentUser, id, handl
 
   const {
     reset,
-    watch,
-    control,
-    setValue,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
@@ -110,6 +93,14 @@ export default function UserNewEditForm({ isEdit = false, currentUser, id, handl
             >
               <RHFTextField name="name" label="Full Name" />
               <RHFTextField name="email" label="Email Address" />
+              <RHFSelect name="role" label="Role" placeholder="Role">
+                <option value="" />
+                {ROLE.map((option) => (
+                  <option key={option.id} value={option.value}>
+                    {option.id}
+                  </option>
+                ))}
+              </RHFSelect>
               {!isEdit && (
                 <RHFTextField
                   name="password"
