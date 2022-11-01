@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { useFormContext, Controller } from 'react-hook-form';
 // @mui
 import { FormHelperText } from '@mui/material';
-//
-import { UploadAvatar, Upload, UploadBox } from '../upload';
+// type
+import { UploadAvatar, UploadMultiFile, UploadSingleFile } from '../upload';
 
 // ----------------------------------------------------------------------
 
@@ -20,20 +20,12 @@ export function RHFUploadAvatar({ name, ...other }) {
       name={name}
       control={control}
       render={({ field, fieldState: { error } }) => {
-        const isError = !!error && !field.value;
+        const checkError = !!error && !field.value;
 
         return (
           <div>
-            <UploadAvatar
-              accept={{
-                'image/*': [],
-              }}
-              error={isError}
-              file={field.value}
-              {...other}
-            />
-
-            {isError && (
+            <UploadAvatar accept={{ 'image/*': [] }} error={checkError} {...other} file={field.value} />
+            {checkError && (
               <FormHelperText error sx={{ px: 2, textAlign: 'center' }}>
                 {error.message}
               </FormHelperText>
@@ -47,11 +39,11 @@ export function RHFUploadAvatar({ name, ...other }) {
 
 // ----------------------------------------------------------------------
 
-RHFUploadBox.propTypes = {
+RHFUploadSingleFile.propTypes = {
   name: PropTypes.string,
 };
 
-export function RHFUploadBox({ name, ...other }) {
+export function RHFUploadSingleFile({ name, ...other }) {
   const { control } = useFormContext();
 
   return (
@@ -59,9 +51,23 @@ export function RHFUploadBox({ name, ...other }) {
       name={name}
       control={control}
       render={({ field, fieldState: { error } }) => {
-        const isError = !!error && !field.value?.length;
+        const checkError = !!error && !field.value;
 
-        return <UploadBox error={isError} files={field.value} {...other} />;
+        return (
+          <UploadSingleFile
+            accept={{ 'image/*': [] }}
+            file={field.value}
+            error={checkError}
+            helperText={
+              checkError && (
+                <FormHelperText error sx={{ px: 2 }}>
+                  {error.message}
+                </FormHelperText>
+              )
+            }
+            {...other}
+          />
+        );
       }}
     />
   );
@@ -69,13 +75,11 @@ export function RHFUploadBox({ name, ...other }) {
 
 // ----------------------------------------------------------------------
 
-RHFUpload.propTypes = {
+RHFUploadMultiFile.propTypes = {
   name: PropTypes.string,
-  isFileUploading: PropTypes.bool,
-  multiple: PropTypes.bool,
 };
 
-export function RHFUpload({ name, multiple, isFileUploading, ...other }) {
+export function RHFUploadMultiFile({ name, ...other }) {
   const { control } = useFormContext();
 
   return (
@@ -83,33 +87,15 @@ export function RHFUpload({ name, multiple, isFileUploading, ...other }) {
       name={name}
       control={control}
       render={({ field, fieldState: { error } }) => {
-        const isErrorWithSingle = !!error && !field.value;
+        const checkError = !!error && field.value?.length === 0;
 
-        const isErrorWithMultiple = !!error && !field.value?.length;
-
-        return multiple ? (
-          <Upload
-            multiple
+        return (
+          <UploadMultiFile
             accept={{ 'image/*': [] }}
             files={field.value}
-            error={isErrorWithMultiple}
+            error={checkError}
             helperText={
-              isErrorWithMultiple && (
-                <FormHelperText error sx={{ px: 2 }}>
-                  {error?.message}
-                </FormHelperText>
-              )
-            }
-            isFileUploading={isFileUploading}
-            {...other}
-          />
-        ) : (
-          <Upload
-            accept={{ 'image/*': [] }}
-            file={field.value}
-            error={isErrorWithSingle}
-            helperText={
-              isErrorWithSingle && (
+              checkError && (
                 <FormHelperText error sx={{ px: 2 }}>
                   {error?.message}
                 </FormHelperText>

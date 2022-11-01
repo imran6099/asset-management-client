@@ -10,10 +10,12 @@ import { LoadingButton } from '@mui/lab';
 import { Box, Card, Grid, Stack, Typography, InputAdornment } from '@mui/material';
 // components
 import Label from '../../../components/Label';
-import { FormProvider, RHFSelect, RHFTextField, RHFEditor, RHFUpload } from '../../../components/hook-form';
+import { FormProvider, RHFSelect, RHFTextField, RHFEditor, RHFUploadMultiFile } from '../../../components/hook-form';
 import { STATUS, LOCATION } from './config.item';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../../firebase.config';
+import { styled } from '@mui/material/styles';
+
 // ----------------------------------------------------------------------
 
 ItemNewEditForm.propTypes = {
@@ -42,7 +44,7 @@ export default function ItemNewEditForm({ isEdit = false, id, currentItem, handl
       name: currentItem?.name || 'Canon 80d',
       description: currentItem?.description || 'This Item contains a lot of features',
       price: currentItem?.price || '1600',
-      images: currentItem?.images || '',
+      images: currentItem?.images || [],
       dateOfPurchase: currentItem?.dateOfPurchase.split('T')[0] || '2022-10-20',
       location: currentItem?.location || 'Juungal',
       status: currentItem?.status || 'active',
@@ -125,6 +127,11 @@ export default function ItemNewEditForm({ isEdit = false, id, currentItem, handl
     setValue('images', []);
   };
 
+  const LabelStyle = styled(Typography)(({ theme }) => ({
+    ...theme.typography.subtitle2,
+    color: theme.palette.text.secondary,
+    marginBottom: theme.spacing(1),
+  }));
   // const handleDrop = useCallback(
   //   async (acceptedFiles) => {
   //     const file = acceptedFiles[0];
@@ -162,28 +169,21 @@ export default function ItemNewEditForm({ isEdit = false, id, currentItem, handl
               <RHFTextField name="name" label="Item Name" />
 
               <Stack spacing={1}>
-                <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
-                  Description
-                </Typography>
+                <LabelStyle>Description</LabelStyle>
 
                 <RHFEditor simple name="description" />
               </Stack>
 
               <Stack spacing={1}>
-                <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
-                  Images
-                </Typography>
-
-                <RHFUpload
-                  multiple
-                  thumbnail
+                <LabelStyle>Images</LabelStyle>
+                <RHFUploadMultiFile
+                  showPreview
                   name="images"
                   maxSize={3145728}
                   onDrop={handleDrop}
                   onRemove={handleRemoveFile}
                   onRemoveAll={handleRemoveAllFiles}
                   onUpload={handleUpload}
-                  isFileUploading={isFileUploading}
                 />
               </Stack>
             </Stack>
@@ -244,6 +244,8 @@ export default function ItemNewEditForm({ isEdit = false, id, currentItem, handl
                     </option>
                   ))}
                 </RHFSelect>
+
+                <LabelStyle>Date Of Purchase</LabelStyle>
 
                 <RHFTextField name="dateOfPurchase" type="date" />
               </Stack>

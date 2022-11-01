@@ -22,27 +22,8 @@ UserTableRow.propTypes = {
   index: PropTypes.string,
 };
 
-export default function UserTableRow({
-  row,
-  selected,
-  onEditRow,
-  onSelectRow,
-  index,
-  onDeleteRow,
-  handleCategoryUpdate,
-}) {
+export default function UserTableRow({ row, selected, onSelectRow, handleCategoryUpdate }) {
   const theme = useTheme();
-  const { name, price, id, dateOfPurchase, location, status } = row;
-
-  const [openMenu, setOpenMenuActions] = useState(null);
-
-  const handleOpenMenu = (event) => {
-    setOpenMenuActions(event.currentTarget);
-  };
-
-  const handleCloseMenu = () => {
-    setOpenMenuActions(null);
-  };
 
   const { category } = useSelector((state) => state);
   const { categories } = category;
@@ -55,31 +36,31 @@ export default function UserTableRow({
 
       <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
         <Typography variant="subtitle2" noWrap>
-          {name}
+          {row?.name}
         </Typography>
       </TableCell>
 
-      <TableCell align="left">{price}</TableCell>
+      <TableCell align="left">{row?.price}</TableCell>
 
-      <TableCell align="left">{dateOfPurchase}</TableCell>
+      <TableCell align="left">{row?.dateOfPurchase}</TableCell>
 
       <TableCell align="left" sx={{ textTransform: 'capitalize' }}>
-        {location}
+        {row?.location}
       </TableCell>
 
       <TableCell align="left">
         <Label
           variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
-          color={(status === 'damaged' && 'error') || (status === 'inactive' && 'warning') || 'success'}
+          color={(row?.status === 'damaged' && 'error') || (row?.status === 'inactive' && 'warning') || 'success'}
           sx={{ textTransform: 'capitalize' }}
         >
-          {status}
+          {row?.status}
         </Label>
       </TableCell>
 
       <TableCell sx={{ alignItems: 'center' }}>
         {categories.length && (
-          <Select name="category" onChange={(e) => handleCategoryUpdate(id, e.target.value)} fullWidth>
+          <Select name="category" onChange={(e) => handleCategoryUpdate(row?.id, e.target.value)} fullWidth>
             {categories.map((option) => (
               <MenuItem key={option.id} value={option.id}>
                 {option.name}
