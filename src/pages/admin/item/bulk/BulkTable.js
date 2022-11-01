@@ -1,46 +1,34 @@
 import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
 // next
-import { useRouter } from 'next/router';
 // @mui
 import {
   Box,
   Card,
   Table,
   Switch,
-  Tooltip,
   TableBody,
   Container,
-  IconButton,
   TableContainer,
   TablePagination,
   FormControlLabel,
 } from '@mui/material';
 // routes
-import { PATH_ADMIN } from '../../../../routes/paths';
 // hooks
 import useSettings from '../../../../hooks/useSettings';
 import useTable, { getComparator, emptyRows } from '../../../../hooks/useTable';
 // layouts
 import Layout from '../../../../layouts';
 
-// Guards
-
 // components
-import Iconify from '../../../../components/Iconify';
 import Scrollbar from '../../../../components/Scrollbar';
 import { TableEmptyRows, TableHeadCustom, TableNoData, TableSelectedActions } from '../../../../components/table';
 // sections
 import ItemTableRow from './BulkTableRow';
 import ItemTableToolbar from './BulkTableToolbar';
-
 import { getCategories } from '../../../../redux/slices/category';
-
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteCategory } from '../../../../redux/thunk/category';
 
-import { useSnackbar } from 'notistack';
-import {} from 'change-case';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -76,7 +64,6 @@ export default function ItemBulkData({ handleCategoryUpdate }) {
     setPage,
     //
     selected,
-    setSelected,
     onSelectRow,
     onSelectAllRows,
     //
@@ -85,8 +72,6 @@ export default function ItemBulkData({ handleCategoryUpdate }) {
     onChangePage,
     onChangeRowsPerPage,
   } = useTable();
-
-  const { enqueueSnackbar } = useSnackbar();
 
   // Get Companies
   const dispatch = useDispatch();

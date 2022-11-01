@@ -55,6 +55,7 @@ export default function ItemNewEditForm({ isEdit = false, id, currentIssue, hand
     reset,
     handleSubmit,
     formState: { isSubmitting },
+    watch,
   } = methods;
 
   useEffect(() => {
@@ -75,6 +76,9 @@ export default function ItemNewEditForm({ isEdit = false, id, currentIssue, hand
       console.error(error);
     }
   };
+
+  const values = watch();
+  console.log(values);
 
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>

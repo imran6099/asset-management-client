@@ -1,13 +1,10 @@
 import PropTypes from 'prop-types';
-import { useState } from 'react';
 // @mui
 import { useTheme } from '@mui/material/styles';
 import { Checkbox, TableRow, TableCell, Typography, MenuItem, Select } from '@mui/material';
 
 // components
 import Label from '../../../../components/Label';
-import Iconify from '../../../../components/Iconify';
-import { TableMoreMenu } from '../../../../components/table';
 import { useSelector } from 'react-redux';
 
 // ----------------------------------------------------------------------
