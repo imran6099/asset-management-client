@@ -2,12 +2,11 @@ import PropTypes from 'prop-types';
 import { useState } from 'react';
 // @mui
 import { useTheme } from '@mui/material/styles';
-import { Checkbox, TableRow, TableCell, Typography, MenuItem } from '@mui/material';
+import { Checkbox, TableRow, TableCell, MenuItem } from '@mui/material';
 // components
 import Label from '../../../../components/Label';
 import Iconify from '../../../../components/Iconify';
 import { TableMoreMenu } from '../../../../components/table';
-import Image from '../../../../components/Image';
 import useAuth from '../../../../hooks/useAuth';
 
 // ----------------------------------------------------------------------
@@ -19,22 +18,11 @@ UserTableRow.propTypes = {
   onSelectRow: PropTypes.func,
   onDeleteRow: PropTypes.func,
   onShowMore: PropTypes.func,
-  onNewIssue: PropTypes.func,
-  onTransfer: PropTypes.func,
 };
 
-export default function UserTableRow({
-  row,
-  selected,
-  onEditRow,
-  onSelectRow,
-  onNewIssue,
-  onTransfer,
-  onDeleteRow,
-  onShowMore,
-}) {
+export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onShowMore }) {
   const theme = useTheme();
-  const { itemNumber, name, images, price, category, dateOfPurchase, location, status } = row;
+  const { item, transferRequestFrom, dateOfTransfer, transferTO, dateOfReturn, returned, transferReqStatus } = row;
 
   const [openMenu, setOpenMenuActions] = useState(null);
 
@@ -54,40 +42,41 @@ export default function UserTableRow({
         <Checkbox checked={selected} onClick={onSelectRow} />
       </TableCell>
 
-      <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-        <Image
-          disabledEffect
-          visibleByDefault
-          alt={name}
-          src={images}
-          sx={{ borderRadius: 1.5, width: 48, height: 48 }}
-        />
-      </TableCell>
-      <TableCell align="left">
-        <Typography variant="subtitle2" noWrap>
-          {name}
-        </Typography>
-      </TableCell>
-      <TableCell align="left">{itemNumber}</TableCell>
-      <TableCell align="left">{price}</TableCell>
+      <TableCell align="left">{item?.name}</TableCell>
 
-      <TableCell align="left">{category?.name}</TableCell>
+      <TableCell align="left">{transferRequestFrom?.name}</TableCell>
 
       <TableCell align="left" sx={{ textTransform: 'capitalize' }}>
-        {dateOfPurchase?.split('T')[0]}
+        {dateOfTransfer.split('T')[0]}
       </TableCell>
 
+      <TableCell align="left">{`To ${transferTO?.whom} in ${transferTO?.where}`}</TableCell>
+
       <TableCell align="left" sx={{ textTransform: 'capitalize' }}>
-        {location}
+        {dateOfReturn.split('T')[0]}
       </TableCell>
 
       <TableCell align="left">
         <Label
           variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
-          color={(status === 'damaged' && 'error') || (status === 'inactive' && 'warning') || 'success'}
+          color={(!returned && 'error') || 'success'}
           sx={{ textTransform: 'capitalize' }}
         >
-          {status}
+          {returned ? 'Yes' : 'No'}
+        </Label>
+      </TableCell>
+
+      <TableCell align="left">
+        <Label
+          variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
+          color={
+            (transferReqStatus === 'rejected' && 'error') ||
+            (transferReqStatus === 'under review' && 'warning') ||
+            'success'
+          }
+          sx={{ textTransform: 'capitalize' }}
+        >
+          {transferReqStatus}
         </Label>
       </TableCell>
 
@@ -119,35 +108,17 @@ export default function UserTableRow({
                     <Iconify icon={'eva:edit-fill'} />
                     Edit
                   </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      onShowMore();
+                      handleCloseMenu();
+                    }}
+                  >
+                    <Iconify icon={'eva:eye-fill'} />
+                    Show More
+                  </MenuItem>
                 </>
               )}
-              <MenuItem
-                onClick={() => {
-                  onShowMore();
-                  handleCloseMenu();
-                }}
-              >
-                <Iconify icon={'eva:eye-fill'} />
-                Show More
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  onNewIssue();
-                  handleCloseMenu();
-                }}
-              >
-                <Iconify icon={'eva:edit-fill'} />
-                New Event
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  onNewIssue();
-                  onTransfer();
-                }}
-              >
-                <Iconify icon={'eva:undo-outline'} />
-                Transfer
-              </MenuItem>
             </>
           }
         />

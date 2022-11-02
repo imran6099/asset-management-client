@@ -31,6 +31,7 @@ import Layout from '../../../layouts';
 
 // Guards
 import RoleBasedGuard from '../../../guards/RoleBasedGuard';
+
 // components
 import Page from '../../../components/Page';
 import Iconify from '../../../components/Iconify';
@@ -38,30 +39,28 @@ import Scrollbar from '../../../components/Scrollbar';
 import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
 import { TableEmptyRows, TableHeadCustom, TableNoData, TableSelectedActions } from '../../../components/table';
 // sections
-import { ItemTableToolbar, ItemTableRow } from '../../../sections/@dashboard/item/list';
+import { TransferTableToolbar, TransferTableRow } from '../../../sections/@dashboard/transfer/list';
 
-import { getItems } from '../../../redux/slices/item';
-import { destroyData } from '../../../redux/slices/data';
-import { getCategories } from '../../../redux/slices/category';
+import { getUsers } from '../../../redux/slices/user';
+import { getTransfers } from '../../../redux/slices/transfer';
+
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteItem, createManyItems, deleteManyItem } from '../../../redux/thunk/item';
-import useAuth from '../../../hooks/useAuth';
+import { deleteTransfer } from '../../../redux/thunk/transfer';
 
 import { useSnackbar } from 'notistack';
-import MaxWidthDialog from './bulk/BulkFiles';
+import useAuth from '../../../hooks/useAuth';
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = ['all', 'active', 'damaged', 'inactive'];
+const STATUS_OPTIONS = ['all', 'under review', 'accepted', 'rejected'];
 
 const TABLE_HEAD = [
-  { id: 'image', label: 'Image', align: 'left' },
-  { id: 'name', label: 'Name', align: 'left' },
-  { id: 'itemNumber', label: 'Item ID Number', align: 'left' },
-  { id: 'price', label: 'Price', align: 'left' },
-  { id: 'category', label: 'Category', align: 'left' },
-  { id: 'dateOfPurchase', label: 'Date Of Purchase', align: 'left' },
-  { id: 'location', label: 'Location', align: 'left' },
-  { id: 'status', label: 'Status', align: 'left' },
+  { id: 'item', label: 'Item', align: 'left' },
+  { id: 'transferRequestFrom', label: 'Transferred By', align: 'left' },
+  { id: 'dateOfTransfer', label: 'Date Of Transfer', align: 'left' },
+  { id: 'transferTO', label: 'Transferred To', align: 'left' },
+  { id: 'dateOfReturn', label: 'Date Of Return', align: 'left' },
+  { id: 'returned', label: 'Return', align: 'left' },
+  { id: 'transferReqStatus', label: 'Transfer Request Status', align: 'left' },
   { id: '' },
 ];
 
@@ -69,12 +68,12 @@ const TABLE_HEAD = [
 
 // ----------------------------------------------------------------------
 
-ItemList.getLayout = function getLayout(page) {
+UserList.getLayout = function getLayout(page) {
   return <Layout>{page}</Layout>;
 };
 // ----------------------------------------------------------------------
 
-export default function ItemList() {
+export default function UserList() {
   const {
     dense,
     page,
@@ -94,42 +93,34 @@ export default function ItemList() {
     onChangeRowsPerPage,
   } = useTable();
 
-  const { user } = useAuth();
-
   const { enqueueSnackbar } = useSnackbar();
+  const { user } = useAuth();
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const fetchItems = async () => {
-      await dispatch(getItems());
+    const fetchTransfers = async () => {
+      await dispatch(getTransfers());
     };
-    const fetchCategoreis = async () => {
-      await dispatch(getCategories());
+    const fetchUsers = async () => {
+      await dispatch(getUsers());
     };
-    fetchItems();
-    fetchCategoreis();
+    fetchTransfers();
+    fetchUsers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
-  const { item, category } = useSelector((state) => state);
-  const { categories } = category;
+  const { userBase, transfer } = useSelector((state) => state);
+  const { users } = userBase;
 
-  const CATEGORY_OPTIONS = categories.map((res) => res.name);
-  CATEGORY_OPTIONS.push('all');
-
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => {
-    setOpen(false);
-    dispatch(destroyData());
-  };
+  const USER_OPTIONS = users.map((res) => res.name);
+  USER_OPTIONS.push('all');
 
   const { themeStretch } = useSettings();
 
   const { push } = useRouter();
 
-  const [tableData, setTableData] = useState(item?.items || []);
+  const [tableData, setTableData] = useState(transfer?.transfers);
 
   const [filterName, setFilterName] = useState('');
 
@@ -147,51 +138,47 @@ export default function ItemList() {
   };
 
   const handleDeleteRow = async (id) => {
-    const reduxResponse = await dispatch(deleteItem(id));
-    if (reduxResponse.type === 'item/remove/rejected') {
+    const reduxResponse = await dispatch(deleteTransfer(id));
+    if (reduxResponse.type === 'transfer/remove/rejected') {
       enqueueSnackbar('Failed', {
         variant: 'error',
       });
-    } else if (reduxResponse.type === 'item/remove/fulfilled') {
+    } else if (reduxResponse.type === 'transfer/remove/fulfilled') {
       enqueueSnackbar('Done', {
         variant: 'success',
       });
       const deleteRow = tableData.filter((row) => row.id !== id);
       setSelected([]);
       setTableData(deleteRow);
-      await dispatch(getItems());
+      await dispatch(getTransfers());
     }
   };
 
-  const handleDeleteRows = async (selected) => {
-    const reduxResponse = await dispatch(deleteManyItem(selected));
-    if (reduxResponse.type === 'item/remove-many/rejected') {
-      enqueueSnackbar('Failed', {
-        variant: 'error',
-      });
-    } else if (reduxResponse.type === 'item/remove-many/fulfilled') {
-      enqueueSnackbar('Done', {
-        variant: 'success',
-      });
-      const deleteRows = tableData.filter((row) => !selected.includes(row.id));
-      setSelected([]);
-      setTableData(deleteRows);
-      await dispatch(getItems());
-    }
-  };
+  // const handleDeleteRows = async (selected) => {
+  //   const reduxResponse = await dispatch(selected);
+  //   if (reduxResponse.type === 'item/remove-many/rejected') {
+  //     enqueueSnackbar('Failed', {
+  //       variant: 'error',
+  //     });
+  //   } else if (reduxResponse.type === 'item/remove-many/fulfilled') {
+  //     enqueueSnackbar('Done', {
+  //       variant: 'success',
+  //     });
+  //     const deleteRows = tableData.filter((row) => !selected.includes(row.id));
+  //     setSelected([]);
+  //     setTableData(deleteRows);
+  //     await dispatch(getTransfers());
+  //   }
+  // };
 
   const handleEditRow = (id) => {
-    push(PATH_ADMIN.item.edit(id));
+    push(PATH_ADMIN.transfer.edit(id));
   };
+
   const handleShowMore = (id) => {
-    push(PATH_ADMIN.item.view(id));
+    push(PATH_ADMIN.transfer.view(id));
   };
-  const handleNewIssue = (id) => {
-    push(PATH_ADMIN.item.newIssue(id));
-  };
-  const handleTransfer = (id) => {
-    push(PATH_ADMIN.item.newTransfer(id));
-  };
+
   const dataFiltered = applySortFilter({
     tableData,
     comparator: getComparator(order, orderBy),
@@ -207,66 +194,18 @@ export default function ItemList() {
     (!dataFiltered.length && !!filterRole) ||
     (!dataFiltered.length && !!filterStatus);
 
-  // Bulk File Upload
-  const handleBulkUpload = async (data) => {
-    const newArray = data.map(({ id, ...rest }) => rest);
-    const reduxResponse = await dispatch(createManyItems(newArray));
-    if (reduxResponse.type === 'item/create-many/rejected') {
-      enqueueSnackbar('Failed', {
-        variant: 'error',
-      });
-    } else if (reduxResponse.type === 'item/create-many/fulfilled') {
-      enqueueSnackbar('Done', {
-        variant: 'success',
-      });
-      dispatch(destroyData());
-      dispatch(getItems());
-      window.location.reload();
-    }
-  };
-
   return (
     <RoleBasedGuard roles={['admin', 'manager', 'user']} hasContent={true}>
-      <Page title="Item: List">
+      <Page title="Transfer: List">
         <Container maxWidth={themeStretch ? false : 'lg'}>
           <HeaderBreadcrumbs
-            heading="Item List"
+            heading="Tranfers List"
             links={[
               { name: 'ADMIN', href: PATH_ADMIN.root },
-              { name: 'Item', href: PATH_ADMIN.item.root },
+              { name: 'Transfer', href: PATH_ADMIN.transfer.root },
               { name: 'List' },
             ]}
-            action={
-              <Box>
-                {user.role !== 'user' && (
-                  <Box>
-                    <NextLink href={PATH_ADMIN.item.new} passHref>
-                      <Button variant="contained" startIcon={<Iconify icon={'eva:plus-fill'} />}>
-                        New item
-                      </Button>
-                    </NextLink>
-
-                    <Button
-                      sx={{ m: 2 }}
-                      onClick={handleOpen}
-                      variant="outlined"
-                      startIcon={<Iconify icon={'eva:plus-fill'} />}
-                    >
-                      Upload CSV
-                    </Button>
-                  </Box>
-                )}
-              </Box>
-            }
           />
-          {open && (
-            <MaxWidthDialog
-              handleBulkUpload={handleBulkUpload}
-              handleOpen={handleOpen}
-              handleClose={handleClose}
-              open={open}
-            />
-          )}
 
           <Card>
             <Tabs
@@ -284,12 +223,12 @@ export default function ItemList() {
 
             <Divider />
 
-            <ItemTableToolbar
+            <TransferTableToolbar
               filterName={filterName}
               filterRole={filterRole}
               onFilterName={handleFilterName}
               onFilterRole={handleFilterRole}
-              sectorOptions={CATEGORY_OPTIONS}
+              sectorOptions={USER_OPTIONS}
             />
 
             <Scrollbar>
@@ -305,17 +244,17 @@ export default function ItemList() {
                         tableData.map((row) => row.id)
                       )
                     }
-                    actions={
-                      <Box>
-                        {user.role !== 'user' && (
-                          <Tooltip title="Delete">
-                            <IconButton color="primary" onClick={() => handleDeleteRows(selected)}>
-                              <Iconify icon={'eva:trash-2-outline'} />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                      </Box>
-                    }
+                    // actions={
+                    //   <Box>
+                    //     {user.role !== 'user' && (
+                    //       <Tooltip title="Delete">
+                    //         <IconButton color="primary" onClick={() => handleDeleteRows(selected)}>
+                    //           <Iconify icon={'eva:trash-2-outline'} />
+                    //         </IconButton>
+                    //       </Tooltip>
+                    //     )}
+                    //   </Box>
+                    // }
                   />
                 )}
 
@@ -337,7 +276,7 @@ export default function ItemList() {
 
                   <TableBody>
                     {dataFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-                      <ItemTableRow
+                      <TransferTableRow
                         key={row.id}
                         row={row}
                         selected={selected.includes(row.id)}
@@ -345,8 +284,6 @@ export default function ItemList() {
                         onDeleteRow={() => handleDeleteRow(row.id)}
                         onEditRow={() => handleEditRow(row.id)}
                         onShowMore={() => handleShowMore(row.id)}
-                        onNewIssue={() => handleNewIssue(row.id)}
-                        onTransfer={() => handleTransfer(row.id)}
                       />
                     ))}
 
@@ -396,15 +333,15 @@ function applySortFilter({ tableData, comparator, filterName, filterStatus, filt
   tableData = stabilizedThis.map((el) => el[0]);
 
   if (filterName) {
-    tableData = tableData.filter((item) => item.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
+    tableData = tableData.filter((item) => item.title.toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
   }
 
   if (filterStatus !== 'all') {
-    tableData = tableData.filter((item) => item.status === filterStatus);
+    tableData = tableData.filter((item) => item.transferReqStatus === filterStatus);
   }
 
   if (filterRole !== 'all') {
-    tableData = tableData.filter((item) => item.category?.name === filterRole);
+    tableData = tableData.filter((item) => item.transferRequestFrom?.name === filterRole);
   }
 
   return tableData;

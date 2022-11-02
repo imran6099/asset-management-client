@@ -8,6 +8,8 @@ import itemReducer from './slices/item';
 import issueReducer from './slices/issue';
 import dataReducer from './slices/data';
 import insightsReducer from './slices/insights';
+import transferReducer from './slices/transfer';
+import loanReducer from './slices/loan';
 
 // ----------------------------------------------------------------------
 
@@ -29,7 +31,7 @@ const rootPersistConfig = {
   key: 'root',
   storage,
   keyPrefix: 'redux-',
-  whitelist: ['company', 'userBase', 'data', 'item', 'category', 'issue', 'insight'],
+  whitelist: ['company', 'userBase', 'data', 'item', 'category', 'issue', 'insight', 'transfer', 'loan'],
 };
 
 const rootReducer = combineReducers({
@@ -40,6 +42,8 @@ const rootReducer = combineReducers({
   issue: issueReducer,
   bulk: dataReducer,
   insight: insightsReducer,
+  transfer: transferReducer,
+  loan: loanReducer,
 });
 
 export { rootPersistConfig, rootReducer };

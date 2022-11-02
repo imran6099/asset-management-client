@@ -17,6 +17,8 @@ import { useDispatch } from 'react-redux';
 import { getCategories } from '../../redux/slices/category';
 import { getIssues } from '../../redux/slices/issue';
 import { getItems } from '../../redux/slices/item';
+import { getLoans } from '../../redux/slices/loan';
+import { getTransfers } from '../../redux/slices/transfer';
 
 // ----------------------------------------------------------------------
 
@@ -55,11 +57,15 @@ export default function DashboardLayout({ children }) {
     const loadCategories = () => dispatch(getCategories());
     const loadItems = () => dispatch(getItems());
     const loadIssues = () => dispatch(getIssues());
+    const loadTransfers = () => dispatch(getTransfers());
+    const loadLoans = () => dispatch(getLoans());
 
     loadCategories();
     loadItems();
     loadIssues();
-  }, [dispatch]);
+    loadTransfers();
+    loadLoans();
+  });
 
   const { collapseClick, isCollapse } = useCollapseDrawer();
 

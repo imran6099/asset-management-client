@@ -14,6 +14,8 @@ const ICONS = {
   issue: getIcon('ic_booking'),
   item: getIcon('ic_ecommerce'),
   category: getIcon('ic_menu_item'),
+  transfer: getIcon('ic_kanban'),
+  loan: getIcon('ic_invoice'),
 };
 
 const navConfig = [
@@ -28,6 +30,8 @@ const navConfig = [
       { title: 'Items', path: PATH_ADMIN.item.root, icon: ICONS.item },
       { title: 'Events', path: PATH_ADMIN.issue.root, icon: ICONS.issue },
       { title: 'Users', path: PATH_ADMIN.user.root, icon: ICONS.user },
+      { title: 'Transfers', path: PATH_ADMIN.transfer.root, icon: ICONS.transfer },
+      { title: 'Loans', path: PATH_ADMIN.loan.root, icon: ICONS.loan },
     ],
   },
   {
@@ -38,6 +42,8 @@ const navConfig = [
       { title: 'Categories', path: PATH_ADMIN.category.root, icon: ICONS.category },
       { title: 'Items', path: PATH_ADMIN.item.root, icon: ICONS.item },
       { title: 'Issues', path: PATH_ADMIN.issue.root, icon: ICONS.issue },
+      { title: 'Transfers', path: PATH_ADMIN.transfer.root, icon: ICONS.transfer },
+      { title: 'Loans', path: PATH_ADMIN.loan.root, icon: ICONS.loan },
     ],
   },
 ];
