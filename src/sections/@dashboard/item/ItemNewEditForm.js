@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 // next
 // form
 import { useForm } from 'react-hook-form';
@@ -27,7 +27,6 @@ ItemNewEditForm.propTypes = {
 };
 
 export default function ItemNewEditForm({ isEdit = false, id, currentItem, handleItemCreate, categories }) {
-  const [isFileUploading, setIsFileUploading] = useState(false);
   const NewItemSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
     description: Yup.string(),
@@ -90,7 +89,6 @@ export default function ItemNewEditForm({ isEdit = false, id, currentItem, handl
   };
 
   const handleUpload = useCallback(() => {
-    setIsFileUploading(true);
     const Images = [...values.images];
     const newImages = [];
     Images.map(async (file) => {
@@ -100,7 +98,6 @@ export default function ItemNewEditForm({ isEdit = false, id, currentItem, handl
       newImages.push(fileUrl);
       setValue('images', newImages);
     });
-    setIsFileUploading(false);
   }, [setValue, values.images]);
 
   const handleDrop = useCallback(
@@ -132,6 +129,7 @@ export default function ItemNewEditForm({ isEdit = false, id, currentItem, handl
     color: theme.palette.text.secondary,
     marginBottom: theme.spacing(1),
   }));
+
   // const handleDrop = useCallback(
   //   async (acceptedFiles) => {
   //     const file = acceptedFiles[0];

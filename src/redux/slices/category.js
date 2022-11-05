@@ -42,11 +42,11 @@ export default slice.reducer;
 
 // ----------------------------------------------------------------------
 
-export function getCategories() {
+export function getCategories(limit = 10, page = 0) {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get('/categories');
+      const response = await axios.get(`/categories?limit=${limit}&&page=${page}`);
       dispatch(slice.actions.getCategoriesSuccess(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));

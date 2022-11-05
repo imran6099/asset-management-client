@@ -5,11 +5,14 @@ import { useRouter } from 'next/router';
 // @mui
 import {
   Box,
+  Tab,
+  Tabs,
   Card,
   Table,
   Switch,
   Button,
   Tooltip,
+  Divider,
   TableBody,
   Container,
   IconButton,
@@ -36,23 +39,34 @@ import Scrollbar from '../../../components/Scrollbar';
 import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
 import { TableEmptyRows, TableHeadCustom, TableNoData, TableSelectedActions } from '../../../components/table';
 // sections
-import { UserTableToolbar, UserTableRow } from '../../../sections/@dashboard/user/list';
+import { TransferTableToolbar, TransferTableRow } from '../../../sections/@dashboard/transfer/list';
 
 import { getUsers } from '../../../redux/slices/user';
+import { getTransfers } from '../../../redux/slices/transfer';
+
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteUser } from '../../../redux/thunk/user';
-import useAuth from '../../../hooks/useAuth';
+import { deleteTransfer } from '../../../redux/thunk/transfer';
+
 import { useSnackbar } from 'notistack';
+import useAuth from '../../../hooks/useAuth';
+
 // ----------------------------------------------------------------------
 
-const SECTOR_OPTIONS = ['all', 'admin', 'user', 'manager'];
+const STATUS_OPTIONS = ['all', 'under review', 'accepted', 'rejected'];
+const RETURN_OPTIONS = ['all', 'returned', 'not returned'];
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'User Name', align: 'left' },
-  { id: 'role', label: 'role', align: 'left' },
-  { id: 'email', label: 'Email', align: 'left' },
+  { id: 'item', label: 'Item', align: 'left' },
+  { id: 'transferRequestFrom', label: 'Transferred By', align: 'left' },
+  { id: 'dateOfTransfer', label: 'Date Of Transfer', align: 'left' },
+  { id: 'transferTO', label: 'Transferred', align: 'left' },
+  { id: 'dateOfReturn', label: 'Date Of Return', align: 'left' },
+  { id: 'returned', label: 'Return', align: 'left' },
+  { id: 'transferReqStatus', label: 'Transfer Request Status', align: 'left' },
   { id: '' },
 ];
+
+// Companies Mock Data
 
 // ----------------------------------------------------------------------
 
@@ -83,34 +97,47 @@ export default function UserList() {
 
   const { enqueueSnackbar } = useSnackbar();
   const { user } = useAuth();
-  // Get Companies
+
   const dispatch = useDispatch();
 
+  const [tableData, setTableData] = useState([]);
+
   useEffect(() => {
-    const fetchUsers = async () => {
-      await dispatch(getUsers(rowsPerPage, page));
+    const fetchTransfers = async () => {
+      await dispatch(getTransfers(rowsPerPage, page));
     };
-    fetchUsers().catch((err) => {
-      console.log(err);
-    });
+    const fetchUsers = async () => {
+      await dispatch(getUsers());
+    };
+
+    {
+      user.role === 'user'
+        ? setTableData(transfer?.transfers.filter((res) => res.transferRequestFrom.id === user.id))
+        : setTableData(transfer?.transfers);
+    }
+
+    fetchTransfers();
+    fetchUsers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, rowsPerPage, page]);
 
-  const { userBase } = useSelector((state) => state);
-
+  const { userBase, transfer } = useSelector((state) => state);
   const { users } = userBase;
+
+  const USER_OPTIONS = users.map((res) => res.name);
+  USER_OPTIONS.push('all');
 
   const { themeStretch } = useSettings();
 
   const { push } = useRouter();
 
-  const [tableData, setTableData] = useState(users.filter((res) => res.id != user.id));
-
   const [filterName, setFilterName] = useState('');
 
   const [filterRole, setFilterRole] = useState('all');
 
-  const { currentTab: filterStatus } = useTabs('all');
+  const { currentTab: filterStatus, onChangeTab: onChangeFilterStatus } = useTabs('all');
+
+  const { currentTab: filterReturn, onChangeTab: onChangeReturnStatus } = useTabs('all');
 
   const handleFilterName = (filterName) => {
     setFilterName(filterName);
@@ -122,31 +149,49 @@ export default function UserList() {
   };
 
   const handleDeleteRow = async (id) => {
-    const reduxResponse = await dispatch(deleteUser(id));
-    if (reduxResponse.type === 'user/remove/rejected') {
+    const reduxResponse = await dispatch(deleteTransfer(id));
+    if (reduxResponse.type === 'transfer/remove/rejected') {
       enqueueSnackbar('Failed', {
         variant: 'error',
       });
-    } else if (reduxResponse.type === 'user/remove/fulfilled') {
+    } else if (reduxResponse.type === 'transfer/remove/fulfilled') {
       enqueueSnackbar('Done', {
         variant: 'success',
       });
-      await dispatch(getUsers());
-      window.location.reload();
+      const deleteRow = tableData.filter((row) => row.id !== id);
+      setSelected([]);
+      setTableData(deleteRow);
+      await dispatch(getTransfers());
     }
-    // const deleteRow = tableData.filter((row) => row.id !== id);
-    // setSelected([]);
-    // setTableData(deleteRow);
   };
 
-  const handleDeleteRows = (selected) => {
-    const deleteRows = tableData.filter((row) => !selected.includes(row.id));
-    setSelected([]);
-    setTableData(deleteRows);
-  };
+  // const handleDeleteRows = async (selected) => {
+  //   const reduxResponse = await dispatch(selected);
+  //   if (reduxResponse.type === 'item/remove-many/rejected') {
+  //     enqueueSnackbar('Failed', {
+  //       variant: 'error',
+  //     });
+  //   } else if (reduxResponse.type === 'item/remove-many/fulfilled') {
+  //     enqueueSnackbar('Done', {
+  //       variant: 'success',
+  //     });
+  //     const deleteRows = tableData.filter((row) => !selected.includes(row.id));
+  //     setSelected([]);
+  //     setTableData(deleteRows);
+  //     await dispatch(getTransfers());
+  //   }
+  // };
 
   const handleEditRow = (id) => {
-    push(PATH_ADMIN.user.edit(id));
+    push(PATH_ADMIN.transfer.edit(id));
+  };
+
+  const handleShowMore = (id) => {
+    push(PATH_ADMIN.transfer.view(id));
+  };
+
+  const onReturn = (id) => {
+    push(PATH_ADMIN.transfer.return(id));
   };
 
   const dataFiltered = applySortFilter({
@@ -155,6 +200,7 @@ export default function UserList() {
     filterName,
     filterRole,
     filterStatus,
+    filterReturn,
   });
 
   const denseHeight = dense ? 52 : 72;
@@ -162,35 +208,57 @@ export default function UserList() {
   const isNotFound =
     (!dataFiltered.length && !!filterName) ||
     (!dataFiltered.length && !!filterRole) ||
-    (!dataFiltered.length && !!filterStatus);
+    (!dataFiltered.length && !!filterStatus) ||
+    (!dataFiltered.length && !!filterReturn);
 
   return (
-    <RoleBasedGuard roles={['admin']} hasContent={true}>
-      <Page title="User: List">
+    <RoleBasedGuard roles={['admin', 'manager', 'user']} hasContent={true}>
+      <Page title="Transfer: List">
         <Container maxWidth={themeStretch ? false : 'lg'}>
           <HeaderBreadcrumbs
-            heading="User List"
+            heading="Tranfers List"
             links={[
               { name: 'ADMIN', href: PATH_ADMIN.root },
-              { name: 'User', href: PATH_ADMIN.user.root },
+              { name: 'Transfer', href: PATH_ADMIN.transfer.root },
               { name: 'List' },
             ]}
-            action={
-              <NextLink href={PATH_ADMIN.user.new} passHref>
-                <Button variant="contained" startIcon={<Iconify icon={'eva:plus-fill'} />}>
-                  New User
-                </Button>
-              </NextLink>
-            }
           />
 
           <Card>
-            <UserTableToolbar
+            <Tabs
+              allowScrollButtonsMobile
+              variant="scrollable"
+              scrollButtons="auto"
+              value={filterStatus}
+              onChange={onChangeFilterStatus}
+              sx={{ px: 2, bgcolor: 'background.neutral' }}
+            >
+              {STATUS_OPTIONS.map((tab) => (
+                <Tab disableRipple key={tab} label={tab} value={tab} />
+              ))}
+            </Tabs>
+
+            <Tabs
+              allowScrollButtonsMobile
+              variant="scrollable"
+              scrollButtons="auto"
+              value={filterReturn}
+              onChange={onChangeReturnStatus}
+              sx={{ px: 2, marginTop: '1%', bgcolor: 'background.warning' }}
+            >
+              {RETURN_OPTIONS.map((tab) => (
+                <Tab disableRipple key={tab} label={tab} value={tab} />
+              ))}
+            </Tabs>
+
+            <Divider />
+
+            <TransferTableToolbar
               filterName={filterName}
               filterRole={filterRole}
               onFilterName={handleFilterName}
               onFilterRole={handleFilterRole}
-              optionsRole={SECTOR_OPTIONS}
+              sectorOptions={USER_OPTIONS}
             />
 
             <Scrollbar>
@@ -206,13 +274,17 @@ export default function UserList() {
                         tableData.map((row) => row.id)
                       )
                     }
-                    actions={
-                      <Tooltip title="Delete">
-                        <IconButton color="primary" onClick={() => handleDeleteRows(selected)}>
-                          <Iconify icon={'eva:trash-2-outline'} />
-                        </IconButton>
-                      </Tooltip>
-                    }
+                    // actions={
+                    //   <Box>
+                    //     {user.role !== 'user' && (
+                    //       <Tooltip title="Delete">
+                    //         <IconButton color="primary" onClick={() => handleDeleteRows(selected)}>
+                    //           <Iconify icon={'eva:trash-2-outline'} />
+                    //         </IconButton>
+                    //       </Tooltip>
+                    //     )}
+                    //   </Box>
+                    // }
                   />
                 )}
 
@@ -233,15 +305,19 @@ export default function UserList() {
                   />
 
                   <TableBody>
-                    {dataFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-                      <UserTableRow
-                        key={row.id}
-                        row={row}
-                        selected={selected.includes(row.id)}
-                        onSelectRow={() => onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        onEditRow={() => handleEditRow(row.id)}
-                      />
+                    {dataFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
+                      <>
+                        <TransferTableRow
+                          key={row.id}
+                          row={row}
+                          selected={selected.includes(row.id)}
+                          onSelectRow={() => onSelectRow(row.id)}
+                          onDeleteRow={() => handleDeleteRow(row.id)}
+                          onEditRow={() => handleEditRow(row.id)}
+                          onShowMore={() => handleShowMore(row.id)}
+                          onReturn={() => onReturn(row.id)}
+                        />
+                      </>
                     ))}
 
                     <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData.length)} />
@@ -278,7 +354,7 @@ export default function UserList() {
 
 // ----------------------------------------------------------------------
 
-function applySortFilter({ tableData, comparator, filterName, filterStatus, filterRole }) {
+function applySortFilter({ tableData, comparator, filterName, filterStatus, filterReturn, filterRole }) {
   const stabilizedThis = tableData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -290,15 +366,26 @@ function applySortFilter({ tableData, comparator, filterName, filterStatus, filt
   tableData = stabilizedThis.map((el) => el[0]);
 
   if (filterName) {
-    tableData = tableData.filter((item) => item.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
+    tableData = tableData.filter((item) => item.title.toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
   }
 
   if (filterStatus !== 'all') {
-    tableData = tableData.filter((item) => item.status === filterStatus);
+    tableData = tableData.filter((item) => item.transferReqStatus === filterStatus);
+  }
+
+  if (filterReturn !== 'all') {
+    tableData = tableData.filter((item) => {
+      if (filterReturn === 'returned') {
+        return item.returned === true;
+      }
+      if (filterReturn === 'not returned') {
+        return item.returned === false;
+      }
+    });
   }
 
   if (filterRole !== 'all') {
-    tableData = tableData.filter((item) => String(item.role).toLowerCase() === filterRole);
+    tableData = tableData.filter((item) => item.transferRequestFrom?.name === filterRole);
   }
 
   return tableData;

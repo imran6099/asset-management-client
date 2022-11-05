@@ -9,15 +9,11 @@ import { dispatch } from '../store';
 const initialState = {
   isLoading: false,
   error: null,
-  users: [],
-  page: 0,
-  limit: 0,
-  totalPages: 0,
-  totalResults: 0,
+  transfers: [],
 };
 
 const slice = createSlice({
-  name: 'user',
+  name: 'transfer',
   initialState,
   reducers: {
     // START LOADING
@@ -32,13 +28,9 @@ const slice = createSlice({
     },
 
     // GET COMPANIES
-    getUsersSuccess(state, action) {
+    getTransfersSuccess(state, action) {
       state.isLoading = false;
-      state.users = action.payload.results;
-      state.page = action.payload.page;
-      state.limit = action.payload.limit;
-      state.totalPages = action.payload.totalPages;
-      state.totalResults = action.payload.totalResults;
+      state.transfers = action.payload.results;
     },
   },
 });
@@ -50,12 +42,12 @@ export default slice.reducer;
 
 // ----------------------------------------------------------------------
 
-export function getUsers(limit = 10, page = 0) {
+export function getTransfers(limit = 10, page = 0) {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get(`/users?limit=${limit}&&page=${page}`);
-      dispatch(slice.actions.getUsersSuccess(response.data));
+      const response = await axios.get(`/transfers?limit=${limit}&&page=${page}&&populate=transferRequestFrom,item`);
+      dispatch(slice.actions.getTransfersSuccess(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }

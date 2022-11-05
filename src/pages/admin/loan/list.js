@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 // next
-import NextLink from 'next/link';
 import { useRouter } from 'next/router';
+import NextLink from 'next/link';
+import Iconify from '../../../components/Iconify';
+
 // @mui
 import {
   Box,
@@ -10,15 +12,13 @@ import {
   Card,
   Table,
   Switch,
-  Button,
-  Tooltip,
   Divider,
   TableBody,
   Container,
-  IconButton,
   TableContainer,
   TablePagination,
   FormControlLabel,
+  Button,
 } from '@mui/material';
 // routes
 import { PATH_ADMIN } from '../../../routes/paths';
@@ -31,37 +31,38 @@ import Layout from '../../../layouts';
 
 // Guards
 import RoleBasedGuard from '../../../guards/RoleBasedGuard';
+
 // components
 import Page from '../../../components/Page';
-import Iconify from '../../../components/Iconify';
 import Scrollbar from '../../../components/Scrollbar';
 import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
 import { TableEmptyRows, TableHeadCustom, TableNoData, TableSelectedActions } from '../../../components/table';
 // sections
-import { ItemTableToolbar, ItemTableRow } from '../../../sections/@dashboard/item/list';
+import { LoanTableRow, LoanTableToolbar } from '../../../sections/@dashboard/loan/list';
 
-import { getItems } from '../../../redux/slices/item';
-import { destroyData } from '../../../redux/slices/data';
-import { getCategories } from '../../../redux/slices/category';
+import { getUsers } from '../../../redux/slices/user';
+import { getLoans } from '../../../redux/slices/loan';
+
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteItem, createManyItems, deleteManyItem } from '../../../redux/thunk/item';
-import useAuth from '../../../hooks/useAuth';
+import { deleteLoan } from '../../../redux/thunk/loan';
 
 import { useSnackbar } from 'notistack';
-import MaxWidthDialog from './bulk/BulkFiles';
+import useAuth from '../../../hooks/useAuth';
+
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = ['all', 'active', 'damaged', 'inactive'];
+const STATUS_OPTIONS = ['all', 'under review', 'accepted', 'rejected'];
+const RETURN_OPTIONS = ['all', 'returned', 'not returned'];
 
 const TABLE_HEAD = [
-  { id: 'image', label: 'Image', align: 'left' },
-  { id: 'name', label: 'Name', align: 'left' },
-  { id: 'itemNumber', label: 'Item ID Number', align: 'left' },
-  { id: 'price', label: 'Price', align: 'left' },
-  { id: 'category', label: 'Category', align: 'left' },
-  { id: 'dateOfPurchase', label: 'Date Of Purchase', align: 'left' },
-  { id: 'location', label: 'Location', align: 'left' },
-  { id: 'status', label: 'Status', align: 'left' },
+  { id: 'itemName', label: 'ItemName', align: 'left' },
+  { id: 'loanRequestFrom', label: 'Loan By', align: 'left' },
+  { id: 'dateOfLoan', label: 'Date Of Loan', align: 'left' },
+  { id: 'owner', label: 'Item owner', align: 'left' },
+  { id: 'location', label: 'Location of use', align: 'left' },
+  { id: 'dateOfReturn', label: 'Date Of Return', align: 'left' },
+  { id: 'returned', label: 'Return', align: 'left' },
+  { id: 'loanReqStatus', label: 'Loan Request Status', align: 'left' },
   { id: '' },
 ];
 
@@ -69,12 +70,12 @@ const TABLE_HEAD = [
 
 // ----------------------------------------------------------------------
 
-ItemList.getLayout = function getLayout(page) {
+UserList.getLayout = function getLayout(page) {
   return <Layout>{page}</Layout>;
 };
 // ----------------------------------------------------------------------
 
-export default function ItemList() {
+export default function UserList() {
   const {
     dense,
     page,
@@ -94,48 +95,50 @@ export default function ItemList() {
     onChangeRowsPerPage,
   } = useTable();
 
-  const { user } = useAuth();
-
   const { enqueueSnackbar } = useSnackbar();
+  const { user } = useAuth();
 
   const dispatch = useDispatch();
 
+  const [tableData, setTableData] = useState([]);
+
+  const { userBase, loan } = useSelector((state) => state);
+
   useEffect(() => {
-    const fetchItems = async () => {
-      await dispatch(getItems(rowsPerPage, page));
+    const fetchLoans = async () => {
+      await dispatch(getLoans(rowsPerPage, page));
     };
-    const fetchCategoreis = async () => {
-      await dispatch(getCategories());
+    const fetchUsers = async () => {
+      await dispatch(getUsers());
     };
-    fetchItems();
-    fetchCategoreis();
+
+    {
+      user.role === 'user'
+        ? setTableData(loan?.loans.filter((res) => res.loanRequestFrom.id === user.id))
+        : setTableData(loan?.loans);
+    }
+
+    fetchLoans();
+    fetchUsers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, rowsPerPage, page]);
 
-  const { item, category } = useSelector((state) => state);
-  const { categories } = category;
+  const { users } = userBase;
 
-  const CATEGORY_OPTIONS = categories.map((res) => res.name);
-  CATEGORY_OPTIONS.push('all');
-
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => {
-    setOpen(false);
-    dispatch(destroyData());
-  };
+  const USER_OPTIONS = users.map((res) => res.name);
+  USER_OPTIONS.push('all');
 
   const { themeStretch } = useSettings();
 
   const { push } = useRouter();
-
-  const [tableData, setTableData] = useState(item?.items || []);
 
   const [filterName, setFilterName] = useState('');
 
   const [filterRole, setFilterRole] = useState('all');
 
   const { currentTab: filterStatus, onChangeTab: onChangeFilterStatus } = useTabs('all');
+
+  const { currentTab: filterReturn, onChangeTab: onChangeReturnStatus } = useTabs('all');
 
   const handleFilterName = (filterName) => {
     setFilterName(filterName);
@@ -147,57 +150,58 @@ export default function ItemList() {
   };
 
   const handleDeleteRow = async (id) => {
-    const reduxResponse = await dispatch(deleteItem(id));
-    if (reduxResponse.type === 'item/remove/rejected') {
+    const reduxResponse = await dispatch(deleteLoan(id));
+    if (reduxResponse.type === 'loan/remove/rejected') {
       enqueueSnackbar('Failed', {
         variant: 'error',
       });
-    } else if (reduxResponse.type === 'item/remove/fulfilled') {
+    } else if (reduxResponse.type === 'loan/remove/fulfilled') {
       enqueueSnackbar('Done', {
         variant: 'success',
       });
       const deleteRow = tableData.filter((row) => row.id !== id);
       setSelected([]);
       setTableData(deleteRow);
-      await dispatch(getItems());
+      await dispatch(getLoans());
     }
   };
 
-  const handleDeleteRows = async (selected) => {
-    const reduxResponse = await dispatch(deleteManyItem(selected));
-    if (reduxResponse.type === 'item/remove-many/rejected') {
-      enqueueSnackbar('Failed', {
-        variant: 'error',
-      });
-    } else if (reduxResponse.type === 'item/remove-many/fulfilled') {
-      enqueueSnackbar('Done', {
-        variant: 'success',
-      });
-      const deleteRows = tableData.filter((row) => !selected.includes(row.id));
-      setSelected([]);
-      setTableData(deleteRows);
-      await dispatch(getItems());
-    }
-  };
+  // const handleDeleteRows = async (selected) => {
+  //   const reduxResponse = await dispatch(selected);
+  //   if (reduxResponse.type === 'item/remove-many/rejected') {
+  //     enqueueSnackbar('Failed', {
+  //       variant: 'error',
+  //     });
+  //   } else if (reduxResponse.type === 'item/remove-many/fulfilled') {
+  //     enqueueSnackbar('Done', {
+  //       variant: 'success',
+  //     });
+  //     const deleteRows = tableData.filter((row) => !selected.includes(row.id));
+  //     setSelected([]);
+  //     setTableData(deleteRows);
+  //     await dispatch(getLoans());
+  //   }
+  // };
 
   const handleEditRow = (id) => {
-    push(PATH_ADMIN.item.edit(id));
+    push(PATH_ADMIN.loan.edit(id));
   };
+
   const handleShowMore = (id) => {
-    push(PATH_ADMIN.item.view(id));
+    push(PATH_ADMIN.loan.view(id));
   };
-  const handleNewIssue = (id) => {
-    push(PATH_ADMIN.item.newIssue(id));
+
+  const onReturn = (id) => {
+    push(PATH_ADMIN.loan.return(id));
   };
-  const handleTransfer = (id) => {
-    push(PATH_ADMIN.item.newTransfer(id));
-  };
+
   const dataFiltered = applySortFilter({
     tableData,
     comparator: getComparator(order, orderBy),
     filterName,
     filterRole,
     filterStatus,
+    filterReturn,
   });
 
   const denseHeight = dense ? 52 : 72;
@@ -205,68 +209,32 @@ export default function ItemList() {
   const isNotFound =
     (!dataFiltered.length && !!filterName) ||
     (!dataFiltered.length && !!filterRole) ||
-    (!dataFiltered.length && !!filterStatus);
-
-  // Bulk File Upload
-  const handleBulkUpload = async (data) => {
-    const newArray = data.map(({ id, ...rest }) => rest);
-    const reduxResponse = await dispatch(createManyItems(newArray));
-    if (reduxResponse.type === 'item/create-many/rejected') {
-      enqueueSnackbar('Failed', {
-        variant: 'error',
-      });
-    } else if (reduxResponse.type === 'item/create-many/fulfilled') {
-      enqueueSnackbar('Done', {
-        variant: 'success',
-      });
-      dispatch(destroyData());
-      dispatch(getItems());
-      window.location.reload();
-    }
-  };
+    (!dataFiltered.length && !!filterStatus) ||
+    (!dataFiltered.length && !!filterReturn);
 
   return (
     <RoleBasedGuard roles={['admin', 'manager', 'user']} hasContent={true}>
-      <Page title="Item: List">
+      <Page title="Loan: List">
         <Container maxWidth={themeStretch ? false : 'lg'}>
           <HeaderBreadcrumbs
-            heading="Item List"
+            heading="Loans List"
             links={[
               { name: 'ADMIN', href: PATH_ADMIN.root },
-              { name: 'Item', href: PATH_ADMIN.item.root },
+              { name: 'Loan', href: PATH_ADMIN.loan.root },
               { name: 'List' },
             ]}
             action={
               <Box>
-                {user.role !== 'user' && (
-                  <Box>
-                    <NextLink href={PATH_ADMIN.item.new} passHref>
-                      <Button variant="contained" startIcon={<Iconify icon={'eva:plus-fill'} />}>
-                        New item
-                      </Button>
-                    </NextLink>
-
-                    <Button
-                      sx={{ m: 2 }}
-                      onClick={handleOpen}
-                      variant="outlined"
-                      startIcon={<Iconify icon={'eva:plus-fill'} />}
-                    >
-                      Upload CSV
+                <Box>
+                  <NextLink href={PATH_ADMIN.loan.new} passHref>
+                    <Button variant="contained" startIcon={<Iconify icon={'eva:plus-fill'} />}>
+                      New Loan
                     </Button>
-                  </Box>
-                )}
+                  </NextLink>
+                </Box>
               </Box>
             }
           />
-          {open && (
-            <MaxWidthDialog
-              handleBulkUpload={handleBulkUpload}
-              handleOpen={handleOpen}
-              handleClose={handleClose}
-              open={open}
-            />
-          )}
 
           <Card>
             <Tabs
@@ -282,14 +250,27 @@ export default function ItemList() {
               ))}
             </Tabs>
 
+            <Tabs
+              allowScrollButtonsMobile
+              variant="scrollable"
+              scrollButtons="auto"
+              value={filterReturn}
+              onChange={onChangeReturnStatus}
+              sx={{ px: 2, marginTop: '1%', bgcolor: 'background.warning' }}
+            >
+              {RETURN_OPTIONS.map((tab) => (
+                <Tab disableRipple key={tab} label={tab} value={tab} />
+              ))}
+            </Tabs>
+
             <Divider />
 
-            <ItemTableToolbar
+            <LoanTableToolbar
               filterName={filterName}
               filterRole={filterRole}
               onFilterName={handleFilterName}
               onFilterRole={handleFilterRole}
-              sectorOptions={CATEGORY_OPTIONS}
+              sectorOptions={USER_OPTIONS}
             />
 
             <Scrollbar>
@@ -305,17 +286,17 @@ export default function ItemList() {
                         tableData.map((row) => row.id)
                       )
                     }
-                    actions={
-                      <Box>
-                        {user.role !== 'user' && (
-                          <Tooltip title="Delete">
-                            <IconButton color="primary" onClick={() => handleDeleteRows(selected)}>
-                              <Iconify icon={'eva:trash-2-outline'} />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                      </Box>
-                    }
+                    // actions={
+                    //   <Box>
+                    //     {user.role !== 'user' && (
+                    //       <Tooltip title="Delete">
+                    //         <IconButton color="primary" onClick={() => handleDeleteRows(selected)}>
+                    //           <Iconify icon={'eva:trash-2-outline'} />
+                    //         </IconButton>
+                    //       </Tooltip>
+                    //     )}
+                    //   </Box>
+                    // }
                   />
                 )}
 
@@ -337,17 +318,18 @@ export default function ItemList() {
 
                   <TableBody>
                     {dataFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-                      <ItemTableRow
-                        key={row.id}
-                        row={row}
-                        selected={selected.includes(row.id)}
-                        onSelectRow={() => onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        onEditRow={() => handleEditRow(row.id)}
-                        onShowMore={() => handleShowMore(row.id)}
-                        onNewIssue={() => handleNewIssue(row.id)}
-                        onTransfer={() => handleTransfer(row.id)}
-                      />
+                      <>
+                        <LoanTableRow
+                          key={row.id}
+                          row={row}
+                          selected={selected.includes(row.id)}
+                          onSelectRow={() => onSelectRow(row.id)}
+                          onDeleteRow={() => handleDeleteRow(row.id)}
+                          onEditRow={() => handleEditRow(row.id)}
+                          onShowMore={() => handleShowMore(row.id)}
+                          onReturn={() => onReturn(row.id)}
+                        />
+                      </>
                     ))}
 
                     <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData.length)} />
@@ -384,7 +366,7 @@ export default function ItemList() {
 
 // ----------------------------------------------------------------------
 
-function applySortFilter({ tableData, comparator, filterName, filterStatus, filterRole }) {
+function applySortFilter({ tableData, comparator, filterName, filterStatus, filterReturn, filterRole }) {
   const stabilizedThis = tableData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -396,15 +378,26 @@ function applySortFilter({ tableData, comparator, filterName, filterStatus, filt
   tableData = stabilizedThis.map((el) => el[0]);
 
   if (filterName) {
-    tableData = tableData.filter((item) => item.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
+    tableData = tableData.filter((item) => item.itemName.toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
   }
 
   if (filterStatus !== 'all') {
-    tableData = tableData.filter((item) => item.status === filterStatus);
+    tableData = tableData.filter((item) => item.loanReqStatus === filterStatus);
+  }
+
+  if (filterReturn !== 'all') {
+    tableData = tableData.filter((item) => {
+      if (filterReturn === 'returned') {
+        return item.returned === true;
+      }
+      if (filterReturn === 'not returned') {
+        return item.returned === false;
+      }
+    });
   }
 
   if (filterRole !== 'all') {
-    tableData = tableData.filter((item) => item.category?.name === filterRole);
+    tableData = tableData.filter((item) => item.transferRequestFrom?.name === filterRole);
   }
 
   return tableData;
