@@ -21,7 +21,7 @@ export const updateLoanReqStatus = createAsyncThunk('loan/update-req-status', as
   return res;
 });
 
-export const updateLoanReturnStatus = createAsyncThunk('loan/update-return-status', async ({ id, status }) => {
-  const res = await axios.post(`/loans/update-loan-return-status/${id}`, { ...status });
+export const updateLoanReturnStatus = createAsyncThunk('loan/update-return-status', async ({ id, data }) => {
+  const res = await axios.post(`/loans/update-loan-return-status/${id}`, { ...data });
   return res;
 });

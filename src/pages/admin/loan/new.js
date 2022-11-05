@@ -10,18 +10,18 @@ import Layout from '../../../layouts';
 import Page from '../../../components/Page';
 import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
 // sections
-import TransferNewEditForm from '../../../sections/@dashboard/transfer/TransferNewEditForm';
+import LoanNewEditForm from '../../../sections/@dashboard/loan/LoanNewEditForm';
 
 // Guards
 import RoleBasedGuard from '../../../guards/RoleBasedGuard';
 import { useEffect } from 'react';
 import { getUsers } from '../../../redux/slices/user';
 import { useDispatch } from 'react-redux';
-import { createTransfer } from '../../../redux/thunk/transfer';
+import { createLoan } from '../../../redux/thunk/loan';
 
 import { useRouter } from 'next/router';
 import { useSnackbar } from 'notistack';
-import { getTransfers } from '../../../redux/slices/transfer';
+import { getLoans } from '../../../redux/slices/loan';
 import useAuth from '../../../hooks/useAuth';
 
 // ----------------------------------------------------------------------
@@ -39,10 +39,6 @@ export default function CompanyCreate() {
   const { enqueueSnackbar } = useSnackbar();
   const { user } = useAuth();
 
-  const { query } = useRouter();
-
-  const { itemId } = query;
-
   useEffect(() => {
     const getAllUsers = async () => {
       await dispatch(getUsers());
@@ -51,35 +47,35 @@ export default function CompanyCreate() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleTransferCreate = async (id, transfer) => {
-    const reduxResponse = await dispatch(createTransfer(transfer));
-    if (reduxResponse.type === 'transfer/create/rejected') {
+  const handleLoanCreate = async (id, transfer) => {
+    const reduxResponse = await dispatch(createLoan(transfer));
+    if (reduxResponse.type === 'loan/create/rejected') {
       const { error } = reduxResponse;
       enqueueSnackbar(`${error.message}`, {
         variant: 'error',
       });
-    } else if (reduxResponse.type === 'transfer/create/fulfilled') {
+    } else if (reduxResponse.type === 'loan/create/fulfilled') {
       enqueueSnackbar('Done', {
         variant: 'success',
       });
-      await dispatch(getTransfers());
-      router.push(PATH_ADMIN.transfer.list);
+      await dispatch(getLoans());
+      router.push(PATH_ADMIN.loan.list);
     }
   };
 
   return (
     <RoleBasedGuard roles={['admin', 'manager', 'user']} hasContent={true}>
-      <Page title="Transfer: Create a new transfer">
+      <Page title="Loan: Create a new loan">
         <Container maxWidth={themeStretch ? false : 'lg'}>
           <HeaderBreadcrumbs
-            heading="Create a new transfer"
+            heading="Create a new loan"
             links={[
               { name: 'Admin', href: PATH_ADMIN.root },
-              { name: 'Transfer', href: PATH_ADMIN.transfer.list },
-              { name: 'New Transfer' },
+              { name: 'Loan', href: PATH_ADMIN.loan.list },
+              { name: 'New Loan' },
             ]}
           />
-          <TransferNewEditForm handleTransferCreate={handleTransferCreate} itemId={itemId} userId={user.id} />
+          <LoanNewEditForm handleLoanCreate={handleLoanCreate} userId={user.id} />
         </Container>
       </Page>
     </RoleBasedGuard>

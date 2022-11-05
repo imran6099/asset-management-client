@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 // @mui
 import { styled } from '@mui/material/styles';
 import { Box } from '@mui/material';
@@ -13,13 +13,6 @@ import { HEADER, NAVBAR } from '../../config';
 import DashboardHeader from './header';
 import NavbarVertical from './navbar/NavbarVertical';
 import NavbarHorizontal from './navbar/NavbarHorizontal';
-import { useDispatch } from 'react-redux';
-import { getCategories } from '../../redux/slices/category';
-import { getIssues } from '../../redux/slices/issue';
-import { getItems } from '../../redux/slices/item';
-import { getLoans } from '../../redux/slices/loan';
-import { getTransfers } from '../../redux/slices/transfer';
-
 // ----------------------------------------------------------------------
 
 const MainStyle = styled('main', {
@@ -50,23 +43,6 @@ DashboardLayout.propTypes = {
 };
 
 export default function DashboardLayout({ children }) {
-  const dispatch = useDispatch();
-
-  // All API calls
-  useEffect(() => {
-    const loadCategories = () => dispatch(getCategories());
-    const loadItems = () => dispatch(getItems());
-    const loadIssues = () => dispatch(getIssues());
-    const loadTransfers = () => dispatch(getTransfers());
-    const loadLoans = () => dispatch(getLoans());
-
-    loadCategories();
-    loadItems();
-    loadIssues();
-    loadTransfers();
-    loadLoans();
-  });
-
   const { collapseClick, isCollapse } = useCollapseDrawer();
 
   const { themeLayout } = useSettings();

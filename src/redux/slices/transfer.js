@@ -42,11 +42,11 @@ export default slice.reducer;
 
 // ----------------------------------------------------------------------
 
-export function getTransfers() {
+export function getTransfers(limit = 10, page = 0) {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get('/transfers?populate=transferRequestFrom,item');
+      const response = await axios.get(`/transfers?limit=${limit}&&page=${page}&&populate=transferRequestFrom,item`);
       dispatch(slice.actions.getTransfersSuccess(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));

@@ -13,3 +13,4 @@ export { default as BookingRoomAvailable } from './BookingRoomAvailable';
 export { default as BookingCheckInWidgets } from './BookingCheckInWidgets';
 export { default as EcommerceSalesOverview } from './EcommerceSalesOverview';
 export { default as IssuesBasedOnStatus } from './IssuesBasedOnStatus';
+export { default as EcommerceSaleByGender } from './EcommerceSaleByGender';

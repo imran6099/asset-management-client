@@ -19,7 +19,7 @@ export default function UserTableToolbar({ filterName, filterRole, onFilterName,
       <TextField
         fullWidth
         select
-        label="Transferred By"
+        label="Loan By"
         value={filterRole}
         onChange={onFilterRole}
         SelectProps={{
@@ -53,7 +53,7 @@ export default function UserTableToolbar({ filterName, filterRole, onFilterName,
         fullWidth
         value={filterName}
         onChange={(event) => onFilterName(event.target.value)}
-        placeholder="Search transfer..."
+        placeholder="Search loan..."
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">

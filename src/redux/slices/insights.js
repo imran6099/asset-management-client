@@ -12,11 +12,16 @@ const initialState = {
     totalItems: 0,
     totalIssues: 0,
     totalCategories: 0,
+    totalTransfers: 0,
+    totalLoans: 0,
+    totalUsers: 0,
   },
   itemsBasedOnStatus: [],
   issuesBasedOnStatus: [],
   itemsBasedOnLocation: [],
   itemsBasedOnCategory: [],
+  transfersBasedOnReturn: [],
+  loansBasedOnReturn: [],
 };
 
 const slice = createSlice({
@@ -60,6 +65,16 @@ const slice = createSlice({
       state.isLoading = false;
       state.error = null;
       state.itemsBasedOnCategory = action.payload;
+    },
+    loadTransfersWithReturnStatus(state, action) {
+      state.isLoading = false;
+      state.error = null;
+      state.transfersBasedOnReturn = action.payload;
+    },
+    loadLoansWithReturnStatus(state, action) {
+      state.isLoading = false;
+      state.error = null;
+      state.loansBasedOnReturn = action.payload;
     },
   },
 });
@@ -125,6 +140,30 @@ export function getItemWithCategory() {
     try {
       const response = await axios.get('/insights/get-items-based-on-category');
       dispatch(slice.actions.laodItemOnCategorySuccess(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
+export function getTransfersWithReturnStatus() {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.get('/insights/get-transfers-based-on-return-status');
+      dispatch(slice.actions.loadTransfersWithReturnStatus(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
+export function getLoansWithReturnStatus() {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.get('/insights/get-loans-based-on-return-status');
+      dispatch(slice.actions.loadLoansWithReturnStatus(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }

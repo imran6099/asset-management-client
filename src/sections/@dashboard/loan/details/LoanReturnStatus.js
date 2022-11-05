@@ -1,50 +1,40 @@
 import PropTypes from 'prop-types';
-import { useCallback, useMemo } from 'react';
-// @mui
-import {
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogActions,
-  DialogContent,
-  Card,
-  Grid,
-  Stack,
-  Typography,
-} from '@mui/material';
-import { useEffect } from 'react';
+import { useEffect, useMemo, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
-import { FormProvider, RHFUploadMultiFile } from '../../../components/hook-form';
+// @mui
+import { Stack, Grid, Card, Typography } from '@mui/material';
+import { FormProvider, RHFCheckbox, RHFUploadMultiFile } from '../../../../components/hook-form';
 import { LoadingButton } from '@mui/lab';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '../../../firebase.config';
+import { storage } from '../../../../firebase.config';
 import { styled } from '@mui/material/styles';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 // ----------------------------------------------------------------------
 
-MaxWidthDialog.propTypes = {
-  open: PropTypes.bool,
-  handleOpen: PropTypes.func,
-  handleClose: PropTypes.func,
+ItemDetailsSummary.propTypes = {
+  loan: PropTypes.object,
   handleReturnUpdate: PropTypes.func,
-  transfer: PropTypes.object,
-  id: PropTypes.string,
 };
 
-export default function MaxWidthDialog({ id, transfer, handleClose, open, handleReturnUpdate }) {
+export default function ItemDetailsSummary({ loan, handleReturnUpdate }) {
   const NewItemSchema = Yup.object().shape({
-    POD: Yup.array().required('Prove of delivery is required'),
+    returned: Yup.boolean(),
+    POD: Yup.array().when('returned', {
+      is: true,
+      then: Yup.array().min(1, 'Please upload prove of delivery image'),
+    }),
   });
 
+  const { id } = loan;
   const defaultValues = useMemo(
     () => ({
-      returned: true,
-      POD: [],
+      returned: loan?.returned,
+      POD: loan?.POD || [],
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [transfer]
+    [loan]
   );
 
   const methods = useForm({
@@ -55,19 +45,17 @@ export default function MaxWidthDialog({ id, transfer, handleClose, open, handle
   const {
     reset,
     handleSubmit,
-    setValue,
     watch,
-    formState: { isSubmitting, errors },
+    setValue,
+    formState: { isSubmitting },
   } = methods;
 
-  const values = watch();
-
   useEffect(() => {
-    if (transfer) {
+    if (loan) {
       reset(defaultValues);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transfer]);
+  }, [loan]);
 
   const onSubmit = async (data) => {
     try {
@@ -76,6 +64,10 @@ export default function MaxWidthDialog({ id, transfer, handleClose, open, handle
       console.error(error);
     }
   };
+
+  const values = watch();
+
+  console.log(values);
 
   // Files section
 
@@ -121,41 +113,34 @@ export default function MaxWidthDialog({ id, transfer, handleClose, open, handle
     marginBottom: theme.spacing(1),
   }));
 
-  console.log(errors);
-
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <Dialog open={open} maxWidth={false} fullWidth={false}>
-        <DialogTitle>Upload Items using CSV Files</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={3} direction="column" alignItems="center" justify="center">
-            <Grid item xs={12} md={8}>
-              <Card sx={{ p: 3 }}>
-                <Stack spacing={1}>
-                  <LabelStyle>Upload Prove Of Delivery</LabelStyle>
-                  <RHFUploadMultiFile
-                    showPreview
-                    name="POD"
-                    maxSize={3145728}
-                    onDrop={handleDrop}
-                    onRemove={handleRemoveFile}
-                    onRemoveAll={handleRemoveAllFiles}
-                    onUpload={handleUpload}
-                  />
-                </Stack>
-              </Card>
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <LoadingButton type="submit" variant="outlined" size="large" loading={isSubmitting}>
-            Update Return
-          </LoadingButton>
-          <Button onClick={handleClose} variant="contained" color="error">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <Grid container spacing={3} direction="column" alignItems="center" justify="center">
+        <Grid item xs={12} md={8}>
+          <Card sx={{ p: 3 }}>
+            <Stack spacing={3}>
+              <LabelStyle>Loan Returned?</LabelStyle>
+              <RHFCheckbox name="returned" label="Returned">
+                Return
+              </RHFCheckbox>
+
+              <LabelStyle>Upload Prove Of Delivery</LabelStyle>
+              <RHFUploadMultiFile
+                showPreview
+                name="POD"
+                maxSize={3145728}
+                onDrop={handleDrop}
+                onRemove={handleRemoveFile}
+                onRemoveAll={handleRemoveAllFiles}
+                onUpload={handleUpload}
+              />
+              <LoadingButton type="submit" variant="outlined" size="large" loading={isSubmitting}>
+                {'Update Loan Return Status'}
+              </LoadingButton>
+            </Stack>
+          </Card>
+        </Grid>
+      </Grid>
     </FormProvider>
   );
 }

@@ -50,11 +50,11 @@ export default slice.reducer;
 
 // ----------------------------------------------------------------------
 
-export function getUsers() {
+export function getUsers(limit = 10, page = 0) {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get(`/users`);
+      const response = await axios.get(`/users?limit=${limit}&&page=${page}`);
       dispatch(slice.actions.getUsersSuccess(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));

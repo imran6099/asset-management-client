@@ -42,7 +42,7 @@ export default slice.reducer;
 
 // ----------------------------------------------------------------------
 
-export function getLoans(limit = 50, page = 0) {
+export function getLoans(limit = 10, page = 0) {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {

@@ -14,10 +14,10 @@ import Page from '../../../../components/Page';
 import HeaderBreadcrumbs from '../../../../components/HeaderBreadcrumbs';
 
 // sections
-import { TransferReturn } from '../../../../sections/@dashboard/transfer/details';
+import { LoanReturn } from '../../../../sections/@dashboard/loan/details';
 import RoleBasedGuard from '../../../../guards/RoleBasedGuard';
-import { getTransfers } from '../../../../redux/slices/transfer';
-import { updateTransferReturnStatus } from '../../../../redux/thunk/transfer';
+import { getLoans } from '../../../../redux/slices/loan';
+import { updateLoanReturnStatus } from '../../../../redux/thunk/loan';
 import { useSnackbar } from 'notistack';
 
 // ----------------------------------------------------------------------
@@ -32,11 +32,11 @@ export default function ReturnTransfer() {
   } = useRouter();
   const router = useRouter();
 
-  const { transfer } = useSelector((state) => state);
+  const { loan } = useSelector((state) => state);
 
-  const { transfers } = transfer;
+  const { loans } = loan;
 
-  const currentItem = transfers.find((item) => item.id === id);
+  const currentItem = loans.find((item) => item.id === id);
   const { enqueueSnackbar } = useSnackbar();
 
   const dispatch = useDispatch();
@@ -46,31 +46,31 @@ export default function ReturnTransfer() {
       id,
       data,
     };
-    const reduxResponse = await dispatch(updateTransferReturnStatus(reqObject));
-    if (reduxResponse.type === 'transfer/update-return-status/rejected') {
+    const reduxResponse = await dispatch(updateLoanReturnStatus(reqObject));
+    if (reduxResponse.type === 'loan/update-return-status/rejected') {
       const { error } = reduxResponse;
       enqueueSnackbar(`${error.message}`, {
         variant: 'error',
       });
-    } else if (reduxResponse.type === 'transfer/update-return-status/fulfilled') {
-      enqueueSnackbar('Transfer Status Updated!', {
+    } else if (reduxResponse.type === 'loan/update-return-status/fulfilled') {
+      enqueueSnackbar('Loan Return Status Updated!', {
         variant: 'success',
       });
-      await dispatch(getTransfers());
-      router.push(PATH_ADMIN.transfer.list);
+      await dispatch(getLoans());
+      router.push(PATH_ADMIN.loan.list);
     }
   };
 
   return (
     <RoleBasedGuard roles={['admin', 'manager', 'user']} hasContent={true}>
-      <Page title="Transfer: Return">
+      <Page title="Loan: Return">
         <Container maxWidth={'lg'}>
           <HeaderBreadcrumbs
-            heading="Transfer Return"
+            heading="Loan Return"
             links={[
               { name: 'Admin', href: PATH_ADMIN.root },
               { name: 'Transfer', href: PATH_ADMIN.transfer.list },
-              { name: currentItem?.id || '' },
+              { name: currentItem?.itemName || '' },
             ]}
           />
 
@@ -78,7 +78,7 @@ export default function ReturnTransfer() {
             <>
               <Grid container spacing={3}>
                 <Grid item xs={12} md={6} lg={5}>
-                  <TransferReturn transfer={currentItem} handleReturnUpdate={handleReturnUpdate} />
+                  <LoanReturn loan={currentItem} handleReturnUpdate={handleReturnUpdate} />
                 </Grid>
               </Grid>
             </>

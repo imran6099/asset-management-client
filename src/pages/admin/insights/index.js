@@ -8,7 +8,6 @@ import useSettings from '../../../hooks/useSettings';
 // layouts
 import Layout from '../../../layouts';
 // _mock_
-import { _bookingReview, _bookingsOverview } from '../../../_mock';
 // components
 import Page from '../../../components/Page';
 // sections
@@ -19,6 +18,7 @@ import {
   BookingBookedRoom,
   BookingCheckInWidgets,
   IssuesBasedOnStatus,
+  EcommerceSaleByGender,
 } from '../../../sections/@dashboard/insights';
 // assets
 import { SeoIllustration } from '../../../assets';
@@ -29,6 +29,8 @@ import {
   getItemWithStatus,
   getIssueWithStatus,
   getItemWithLocation,
+  getTransfersWithReturnStatus,
+  getLoansWithReturnStatus,
 } from '../../../redux/slices/insights';
 
 // ----------------------------------------------------------------------
@@ -49,7 +51,6 @@ export default function GeneralApp() {
   const dispatch = useDispatch();
 
   const { insight } = useSelector((state) => state);
-  const { itemsBasedOnStatus, itemsBasedOnLocation, itemsBasedOnCategory, issuesBasedOnStatus, totals } = insight;
 
   useEffect(() => {
     const fetchTotals = async () => {
@@ -67,11 +68,19 @@ export default function GeneralApp() {
     const fetchItemsBasedOnCategory = async () => {
       await dispatch(getItemWithCategory());
     };
+    const fetchTransfersBasedOnReturnStatus = async () => {
+      await dispatch(getTransfersWithReturnStatus());
+    };
+    const fetchLoansBasedOnReturnStatus = async () => {
+      await dispatch(getLoansWithReturnStatus());
+    };
     fetchItemsBasedOnCategory();
     fetchItemsBasedOnLocation();
     fetchItemsBasedOnStatus();
     fetchIssuesBasedOnStatus();
     fetchTotals();
+    fetchTransfersBasedOnReturnStatus();
+    fetchLoansBasedOnReturnStatus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
@@ -96,16 +105,30 @@ export default function GeneralApp() {
           </Grid>
 
           <Grid item xs={12} md={4}>
-            <AppWidgetSummary title="Total Items" total={totals?.totalItems} ix="Items" prefix="Items" />
+            <AppWidgetSummary title="Total Items" total={insight?.totals?.totalItems} ix="Items" prefix="Items" />
           </Grid>
 
           <Grid item xs={12} md={4}>
-            <AppWidgetSummary title="Total Issues" total={totals?.totalIssues} prefix="Issues" />
+            <AppWidgetSummary title="Total Issues" total={insight?.totals?.totalIssues} prefix="Issues" />
           </Grid>
 
           <Grid item xs={12} md={4}>
-            <AppWidgetSummary title="Total Categories" total={totals?.totalCategories} prefix="Categories" />
+            <AppWidgetSummary title="Total Categories" total={insight?.totals?.totalCategories} prefix="Categories" />
           </Grid>
+
+          <Grid item xs={12} md={4}>
+            <AppWidgetSummary title="Total Transfers" total={insight?.totals?.totalTransfers} prefix="Categories" />
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <AppWidgetSummary title="Total Loans" total={insight?.totals?.totalLoans} prefix="Categories" />
+          </Grid>
+
+          {user.role != 'user' && (
+            <Grid item xs={12} md={4}>
+              <AppWidgetSummary title="Total Users" total={insight?.totals?.totalUsers} prefix="Categories" />
+            </Grid>
+          )}
 
           <Grid item xs={12}>
             <AppCurrentDownload
@@ -116,21 +139,44 @@ export default function GeneralApp() {
                 theme.palette.primary.main,
                 theme.palette.primary.dark,
               ]}
-              chartData={itemsBasedOnCategory}
+              chartData={insight?.itemsBasedOnCategory}
             />
           </Grid>
           <Grid item xs={12} md={12}>
             <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
-                <BookingBookedRoom title="Items based on status" data={itemsBasedOnStatus} />
+                <BookingBookedRoom title="Items based on status" data={insight?.itemsBasedOnStatus} />
               </Grid>
               <Grid item xs={12} md={6}>
-                <IssuesBasedOnStatus title="Issues based on status" data={issuesBasedOnStatus} />
+                <IssuesBasedOnStatus title="Issues based on status" data={insight?.issuesBasedOnStatus} />
               </Grid>
             </Grid>
           </Grid>
           <Grid item xs={12} md={12}>
-            <BookingCheckInWidgets title="Items based on Location" chartData={itemsBasedOnLocation} />
+            <BookingCheckInWidgets title="Items based on Location" chartData={insight?.itemsBasedOnLocation} />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <EcommerceSaleByGender
+              title="Transfers By Return Status"
+              total={insight.totals?.totalTransfers}
+              chartData={insight?.transfersBasedOnReturn}
+              chartColors={[
+                [theme.palette.primary.light, theme.palette.primary.main],
+                [theme.palette.warning.light, theme.palette.warning.main],
+              ]}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <EcommerceSaleByGender
+              title="Loans By Return Status"
+              total={insight.totals?.totalLoans}
+              chartData={insight?.loansBasedOnReturn}
+              chartColors={[
+                [theme.palette.primary.light, theme.palette.primary.main],
+                [theme.palette.warning.light, theme.palette.warning.main],
+              ]}
+            />
           </Grid>
         </Grid>
       </Container>

@@ -75,6 +75,7 @@ export const PATH_ADMIN = {
     list: path(ROOTS_ADMIN, '/loan/list'),
     edit: (id) => path(ROOTS_ADMIN, `/loan/${id}/edit`),
     view: (id) => path(ROOTS_ADMIN, `/loan/${id}`),
+    return: (id) => path(ROOTS_ADMIN, `/loan/return/${id}`),
   },
 };
 

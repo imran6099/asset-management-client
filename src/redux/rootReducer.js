@@ -1,7 +1,6 @@
 import { combineReducers } from 'redux';
 import createWebStorage from 'redux-persist/lib/storage/createWebStorage';
 // slices
-import companyReducer from './slices/company';
 import userReducer from './slices/user';
 import categoryReducer from './slices/category';
 import itemReducer from './slices/item';
@@ -31,11 +30,10 @@ const rootPersistConfig = {
   key: 'root',
   storage,
   keyPrefix: 'redux-',
-  whitelist: ['company', 'userBase', 'data', 'item', 'category', 'issue', 'insight', 'transfer', 'loan'],
+  whitelist: ['userBase', 'data', 'item', 'category', 'issue', 'insight', 'transfer', 'loan'],
 };
 
 const rootReducer = combineReducers({
-  company: companyReducer,
   userBase: userReducer,
   category: categoryReducer,
   item: itemReducer,

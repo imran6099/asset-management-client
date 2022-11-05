@@ -87,13 +87,13 @@ export default function UserList() {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      await dispatch(getCategories());
+      await dispatch(getCategories(rowsPerPage, page));
     };
     fetchCategories().catch((err) => {
       console.log(err);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch]);
+  }, [dispatch, rowsPerPage, page]);
 
   const { category } = useSelector((state) => state);
 
@@ -239,7 +239,7 @@ export default function UserList() {
 
             <Box sx={{ position: 'relative' }}>
               <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
+                rowsPerPageOptions={[10, 25, 50, 100]}
                 component="div"
                 count={dataFiltered.length}
                 rowsPerPage={rowsPerPage}
