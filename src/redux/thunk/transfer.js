@@ -16,12 +16,15 @@ export const deleteTransfer = createAsyncThunk('transfer/remove', async (id) => 
   return res;
 });
 
-export const updateTransferReqStatus = createAsyncThunk('loan/update-req-status', async ({ id, transferReqStatus }) => {
-  const res = await axios.post(`/transfers/update-transfer-req-status/${id}`, { ...transferReqStatus });
-  return res;
-});
+export const updateTransferReqStatus = createAsyncThunk(
+  'transfer/update-req-status',
+  async ({ id, transferReqStatus }) => {
+    const res = await axios.post(`/transfers/update-transfer-req-status/${id}`, { ...transferReqStatus });
+    return res;
+  }
+);
 
-export const updateTransferReturnStatus = createAsyncThunk('loan/update-return-status', async ({ id, status }) => {
-  const res = await axios.post(`/transfers/update-transfer-return-status/${id}`, { ...status });
+export const updateTransferReturnStatus = createAsyncThunk('transfer/update-return-status', async ({ id, data }) => {
+  const res = await axios.post(`/transfers/update-transfer-return-status/${id}`, { ...data });
   return res;
 });

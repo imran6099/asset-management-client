@@ -8,7 +8,6 @@ import Label from '../../../../components/Label';
 import Iconify from '../../../../components/Iconify';
 import { TableMoreMenu } from '../../../../components/table';
 import useAuth from '../../../../hooks/useAuth';
-
 // ----------------------------------------------------------------------
 
 UserTableRow.propTypes = {
@@ -18,9 +17,11 @@ UserTableRow.propTypes = {
   onSelectRow: PropTypes.func,
   onDeleteRow: PropTypes.func,
   onShowMore: PropTypes.func,
+  onReturn: PropTypes.func,
+  handleReturnUpdate: PropTypes.func,
 };
 
-export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onShowMore }) {
+export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onShowMore, onReturn }) {
   const theme = useTheme();
   const { item, transferRequestFrom, dateOfTransfer, transferTO, dateOfReturn, returned, transferReqStatus } = row;
 
@@ -118,6 +119,26 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
                     Show More
                   </MenuItem>
                 </>
+              )}
+              {user.role != 'user' && (
+                <MenuItem
+                  onClick={() => {
+                    onReturn();
+                  }}
+                >
+                  <Iconify icon={'eva:skip-back-outline'} />
+                  Return Transfer
+                </MenuItem>
+              )}
+              {user.role === 'user' && !returned && (
+                <MenuItem
+                  onClick={() => {
+                    onReturn();
+                  }}
+                >
+                  <Iconify icon={'eva:skip-back-outline'} />
+                  Return Transfer
+                </MenuItem>
               )}
             </>
           }

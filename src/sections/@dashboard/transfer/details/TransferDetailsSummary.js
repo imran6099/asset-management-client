@@ -1,7 +1,5 @@
 import PropTypes from 'prop-types';
 import { useEffect } from 'react';
-// next
-// form
 import { useForm } from 'react-hook-form';
 // @mui
 import { useTheme } from '@mui/material/styles';
@@ -40,11 +38,11 @@ export default function ItemDetailsSummary({ transfer, handleTransferUpdate, ...
   } = methods;
 
   useEffect(() => {
-    if (item) {
+    if (transfer) {
       reset(defaultValues);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item]);
+  }, [transfer]);
 
   const onSubmit = async (data) => {
     try {

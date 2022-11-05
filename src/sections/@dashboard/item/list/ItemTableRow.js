@@ -141,8 +141,8 @@ export default function UserTableRow({
               </MenuItem>
               <MenuItem
                 onClick={() => {
-                  onNewIssue();
                   onTransfer();
+                  handleCloseMenu();
                 }}
               >
                 <Iconify icon={'eva:undo-outline'} />

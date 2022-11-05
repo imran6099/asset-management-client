@@ -58,12 +58,12 @@ export default function IssueDetails() {
       transferReqStatus,
     };
     const reduxResponse = await dispatch(updateTransferReqStatus(reqObject));
-    if (reduxResponse.type === 'transfer/update-transfer-req-status/rejected') {
+    if (reduxResponse.type === 'transfer/update-req-status/rejected') {
       const { error } = reduxResponse;
       enqueueSnackbar(`${error.message}`, {
         variant: 'error',
       });
-    } else if (reduxResponse.type === 'transfer/update-transfer-req-status/fulfilled') {
+    } else if (reduxResponse.type === 'transfer/update-req-status/fulfilled') {
       enqueueSnackbar('Transfer Status Updated!', {
         variant: 'success',
       });

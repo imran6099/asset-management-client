@@ -49,15 +49,17 @@ import { deleteTransfer } from '../../../redux/thunk/transfer';
 
 import { useSnackbar } from 'notistack';
 import useAuth from '../../../hooks/useAuth';
+
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = ['all', 'under review', 'accepted', 'rejected'];
+const RETURN_OPTIONS = ['all', 'returned', 'not returned'];
 
 const TABLE_HEAD = [
   { id: 'item', label: 'Item', align: 'left' },
   { id: 'transferRequestFrom', label: 'Transferred By', align: 'left' },
   { id: 'dateOfTransfer', label: 'Date Of Transfer', align: 'left' },
-  { id: 'transferTO', label: 'Transferred To', align: 'left' },
+  { id: 'transferTO', label: 'Transferred', align: 'left' },
   { id: 'dateOfReturn', label: 'Date Of Return', align: 'left' },
   { id: 'returned', label: 'Return', align: 'left' },
   { id: 'transferReqStatus', label: 'Transfer Request Status', align: 'left' },
@@ -98,6 +100,8 @@ export default function UserList() {
 
   const dispatch = useDispatch();
 
+  const [tableData, setTableData] = useState([]);
+
   useEffect(() => {
     const fetchTransfers = async () => {
       await dispatch(getTransfers());
@@ -105,6 +109,13 @@ export default function UserList() {
     const fetchUsers = async () => {
       await dispatch(getUsers());
     };
+
+    {
+      user.role === 'user'
+        ? setTableData(transfer?.transfers.filter((res) => res.transferRequestFrom.id === user.id))
+        : setTableData(transfer?.transfers);
+    }
+
     fetchTransfers();
     fetchUsers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -120,13 +131,13 @@ export default function UserList() {
 
   const { push } = useRouter();
 
-  const [tableData, setTableData] = useState(transfer?.transfers);
-
   const [filterName, setFilterName] = useState('');
 
   const [filterRole, setFilterRole] = useState('all');
 
   const { currentTab: filterStatus, onChangeTab: onChangeFilterStatus } = useTabs('all');
+
+  const { currentTab: filterReturn, onChangeTab: onChangeReturnStatus } = useTabs('all');
 
   const handleFilterName = (filterName) => {
     setFilterName(filterName);
@@ -179,12 +190,17 @@ export default function UserList() {
     push(PATH_ADMIN.transfer.view(id));
   };
 
+  const onReturn = (id) => {
+    push(PATH_ADMIN.transfer.return(id));
+  };
+
   const dataFiltered = applySortFilter({
     tableData,
     comparator: getComparator(order, orderBy),
     filterName,
     filterRole,
     filterStatus,
+    filterReturn,
   });
 
   const denseHeight = dense ? 52 : 72;
@@ -192,7 +208,8 @@ export default function UserList() {
   const isNotFound =
     (!dataFiltered.length && !!filterName) ||
     (!dataFiltered.length && !!filterRole) ||
-    (!dataFiltered.length && !!filterStatus);
+    (!dataFiltered.length && !!filterStatus) ||
+    (!dataFiltered.length && !!filterReturn);
 
   return (
     <RoleBasedGuard roles={['admin', 'manager', 'user']} hasContent={true}>
@@ -217,6 +234,19 @@ export default function UserList() {
               sx={{ px: 2, bgcolor: 'background.neutral' }}
             >
               {STATUS_OPTIONS.map((tab) => (
+                <Tab disableRipple key={tab} label={tab} value={tab} />
+              ))}
+            </Tabs>
+
+            <Tabs
+              allowScrollButtonsMobile
+              variant="scrollable"
+              scrollButtons="auto"
+              value={filterReturn}
+              onChange={onChangeReturnStatus}
+              sx={{ px: 2, marginTop: '1%', bgcolor: 'background.warning' }}
+            >
+              {RETURN_OPTIONS.map((tab) => (
                 <Tab disableRipple key={tab} label={tab} value={tab} />
               ))}
             </Tabs>
@@ -275,16 +305,19 @@ export default function UserList() {
                   />
 
                   <TableBody>
-                    {dataFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-                      <TransferTableRow
-                        key={row.id}
-                        row={row}
-                        selected={selected.includes(row.id)}
-                        onSelectRow={() => onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        onEditRow={() => handleEditRow(row.id)}
-                        onShowMore={() => handleShowMore(row.id)}
-                      />
+                    {dataFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
+                      <>
+                        <TransferTableRow
+                          key={row.id}
+                          row={row}
+                          selected={selected.includes(row.id)}
+                          onSelectRow={() => onSelectRow(row.id)}
+                          onDeleteRow={() => handleDeleteRow(row.id)}
+                          onEditRow={() => handleEditRow(row.id)}
+                          onShowMore={() => handleShowMore(row.id)}
+                          onReturn={() => onReturn(row.id)}
+                        />
+                      </>
                     ))}
 
                     <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData.length)} />
@@ -321,7 +354,7 @@ export default function UserList() {
 
 // ----------------------------------------------------------------------
 
-function applySortFilter({ tableData, comparator, filterName, filterStatus, filterRole }) {
+function applySortFilter({ tableData, comparator, filterName, filterStatus, filterReturn, filterRole }) {
   const stabilizedThis = tableData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -338,6 +371,17 @@ function applySortFilter({ tableData, comparator, filterName, filterStatus, filt
 
   if (filterStatus !== 'all') {
     tableData = tableData.filter((item) => item.transferReqStatus === filterStatus);
+  }
+
+  if (filterReturn !== 'all') {
+    tableData = tableData.filter((item) => {
+      if (filterReturn === 'returned') {
+        return item.returned === true;
+      }
+      if (filterReturn === 'not returned') {
+        return item.returned === false;
+      }
+    });
   }
 
   if (filterRole !== 'all') {
