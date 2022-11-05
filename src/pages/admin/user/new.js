@@ -14,15 +14,12 @@ import UserNewEditForm from '../../../sections/@dashboard/user/UserNewEditForm';
 
 // Guards
 import RoleBasedGuard from '../../../guards/RoleBasedGuard';
-import { useEffect } from 'react';
 import { getUsers } from '../../../redux/slices/user';
 import { useDispatch } from 'react-redux';
 import { createUser } from '../../../redux/thunk/user';
 
-import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import { useSnackbar } from 'notistack';
-import { getCompanies } from '../../../redux/slices/company';
 
 // ----------------------------------------------------------------------
 
@@ -35,21 +32,8 @@ CompanyCreate.getLayout = function getLayout(page) {
 export default function CompanyCreate() {
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
-  const { company } = useSelector((state) => state);
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
-
-  const { companies } = company;
-
-  useEffect(() => {
-    const getAllCompanies = async () => {
-      await dispatch(getCompanies());
-    };
-    getAllCompanies().catch((err) => {
-      console.log(err);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch]);
 
   const handleUserCreate = async (id, user) => {
     try {
@@ -83,7 +67,7 @@ export default function CompanyCreate() {
               { name: 'New user' },
             ]}
           />
-          <UserNewEditForm handleUserCreate={handleUserCreate} companies={companies} />
+          <UserNewEditForm handleUserCreate={handleUserCreate} />
         </Container>
       </Page>
     </RoleBasedGuard>
