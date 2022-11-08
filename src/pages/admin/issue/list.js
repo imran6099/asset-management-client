@@ -10,7 +10,6 @@ import {
   Card,
   Table,
   Switch,
-  Button,
   Tooltip,
   Divider,
   TableBody,
@@ -57,7 +56,7 @@ const TABLE_HEAD = [
   { id: 'title', label: 'Title', align: 'left' },
   { id: 'item', label: 'Item', align: 'left' },
   { id: 'issuedBy', label: 'Issued By', align: 'left' },
-  { id: 'issueDate', label: 'Issue Date', align: 'left' },
+  { id: 'issueDate', label: 'Fault Date', align: 'left' },
   { id: 'status', label: 'Status', align: 'left' },
   { id: '' },
 ];
@@ -194,13 +193,13 @@ export default function UserList() {
 
   return (
     <RoleBasedGuard roles={['admin', 'manager', 'user']} hasContent={true}>
-      <Page title="Events: List">
+      <Page title="Faults: List">
         <Container maxWidth={themeStretch ? false : 'lg'}>
           <HeaderBreadcrumbs
-            heading="Events List"
+            heading="Faults List"
             links={[
               { name: 'ADMIN', href: PATH_ADMIN.root },
-              { name: 'Issue', href: PATH_ADMIN.issue.root },
+              { name: 'Faults', href: PATH_ADMIN.issue.root },
               { name: 'List' },
             ]}
           />

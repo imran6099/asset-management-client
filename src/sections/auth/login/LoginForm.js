@@ -8,7 +8,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { Stack, Alert, IconButton, InputAdornment } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // routes
-import { PATH_ADMIN, PATH_USER } from '../../../routes/paths';
+import { PATH_ADMIN } from '../../../routes/paths';
 // hooks
 import useAuth from '../../../hooks/useAuth';
 import useIsMountedRef from '../../../hooks/useIsMountedRef';
@@ -50,12 +50,8 @@ export default function LoginForm() {
 
   const onSubmit = async (data) => {
     try {
-      const user = await login(data.email, data.password);
-      if (user.role === 'admin') {
-        router.push(PATH_ADMIN.root);
-      } else {
-        router.push(PATH_USER.root);
-      }
+      await login(data.email, data.password);
+      router.push(PATH_ADMIN.root);
     } catch (error) {
       if (isMountedRef.current) {
         setError('afterSubmit', { ...error, message: error.message });

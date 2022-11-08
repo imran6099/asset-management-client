@@ -68,13 +68,13 @@ export default function UserEdit() {
 
   return (
     <RoleBasedGuard roles={['admin', 'manager']}>
-      <Page title="Issue: Edit issue">
+      <Page title="Fault: Edit fault">
         <Container maxWidth={themeStretch ? false : 'lg'}>
           <HeaderBreadcrumbs
-            heading="Edit user"
+            heading="Edit fault"
             links={[
               { name: 'Dashboard', href: PATH_ADMIN.root },
-              { name: 'Issue', href: PATH_ADMIN.issue.list },
+              { name: 'Faults', href: PATH_ADMIN.issue.list },
               { name: capitalCase(id) },
             ]}
           />

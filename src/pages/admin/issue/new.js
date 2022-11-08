@@ -69,14 +69,14 @@ export default function CompanyCreate() {
 
   return (
     <RoleBasedGuard roles={['admin', 'manager', 'user']} hasContent={true}>
-      <Page title="Issue: Create a new issue">
+      <Page title="Fault: Create a new fault">
         <Container maxWidth={themeStretch ? false : 'lg'}>
           <HeaderBreadcrumbs
-            heading="Create a new issue"
+            heading="Create a new fault"
             links={[
               { name: 'Admin', href: PATH_ADMIN.root },
-              { name: 'Issue', href: PATH_ADMIN.issue.list },
-              { name: 'New issue' },
+              { name: 'Faults', href: PATH_ADMIN.issue.list },
+              { name: 'New Fault' },
             ]}
           />
           <IssueNewEditForm handleIssueCreate={handleIssueCreate} itemId={itemId} userId={user.id} />

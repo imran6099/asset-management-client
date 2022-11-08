@@ -13,13 +13,13 @@ import useAuth from '../../../../hooks/useAuth';
 // ----------------------------------------------------------------------
 
 ItemDetailsSummary.propTypes = {
-  transfer: PropTypes.object,
-  handleTransferUpdate: PropTypes.func,
+  loan: PropTypes.object,
+  handleLoanUpdate: PropTypes.func,
 };
 
-export default function ItemDetailsSummary({ transfer, handleTransferUpdate, ...other }) {
-  const { id, itemName, laonRequestFrom, locationOfUse, dateOfTransfer, owner, dateOfReturn, returned, loanReqStatus } =
-    transfer;
+export default function ItemDetailsSummary({ loan, handleLoanUpdate, ...other }) {
+  const { id, itemName, laonRequestFrom, locationOfUse, dateOfLoan, owner, dateOfReturn, returned, loanReqStatus } =
+    loan;
   const { user } = useAuth();
   const theme = useTheme();
 
@@ -38,15 +38,15 @@ export default function ItemDetailsSummary({ transfer, handleTransferUpdate, ...
   } = methods;
 
   useEffect(() => {
-    if (transfer) {
+    if (loan) {
       reset(defaultValues);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transfer]);
+  }, [loan]);
 
   const onSubmit = async (data) => {
     try {
-      handleTransferUpdate(id, data);
+      handleLoanUpdate(id, data);
     } catch (error) {
       console.error(error);
     }
@@ -84,7 +84,7 @@ export default function ItemDetailsSummary({ transfer, handleTransferUpdate, ...
         <Divider sx={{ borderStyle: 'dashed' }} />
 
         <Stack direction="row" justifyContent="space-between">
-          <Typography variant="h5">Transfer Request By</Typography>
+          <Typography variant="h5">Loan Request By</Typography>
           <Typography variant="subtitle2">{laonRequestFrom?.name}</Typography>
         </Stack>
         <Divider sx={{ borderStyle: 'dashed' }} />
@@ -96,7 +96,7 @@ export default function ItemDetailsSummary({ transfer, handleTransferUpdate, ...
         <Divider sx={{ borderStyle: 'dashed' }} />
 
         <Stack direction="row" justifyContent="space-between">
-          <Typography variant="h5">Transfer Date</Typography>
+          <Typography variant="h5">Loan Date</Typography>
           <Typography
             variant="subtitle2"
             sx={{
@@ -104,7 +104,7 @@ export default function ItemDetailsSummary({ transfer, handleTransferUpdate, ...
               lineHeight: '36px',
             }}
           >
-            {dateOfTransfer?.split('T')[0]}
+            {dateOfLoan?.split('T')[0]}
           </Typography>
         </Stack>
 
@@ -122,7 +122,7 @@ export default function ItemDetailsSummary({ transfer, handleTransferUpdate, ...
         </Stack>
 
         <Stack direction="row" justifyContent="space-between">
-          <Typography variant="h5">Transfer To</Typography>
+          <Typography variant="h5">Owner</Typography>
           <Typography variant="subtitle2">{owner}</Typography>
         </Stack>
 

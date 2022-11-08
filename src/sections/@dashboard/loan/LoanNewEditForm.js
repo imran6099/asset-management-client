@@ -174,7 +174,7 @@ export default function ItemNewEditForm({ isEdit = false, id, currentLoan, handl
         <Grid item xs={12} md={4}>
           <Card sx={{ p: 3 }}>
             <Stack spacing={3}>
-              <LabelStyle>Date Of Transfer</LabelStyle>
+              <LabelStyle>Date Of Loan</LabelStyle>
               <RHFTextField name="dateOfLoan" type="date" />
 
               <LabelStyle>Date Of Return</LabelStyle>

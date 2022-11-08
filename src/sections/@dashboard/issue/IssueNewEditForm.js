@@ -25,11 +25,11 @@ ItemNewEditForm.propTypes = {
 
 export default function ItemNewEditForm({ isEdit = false, id, currentIssue, handleIssueCreate, userId, itemId }) {
   const NewItemSchema = Yup.object().shape({
-    title: Yup.string().required('Name is required'),
+    title: Yup.string().required('Fault title is required'),
     description: Yup.string(),
     item: Yup.string().required('Item ID is required'),
     issuedBy: Yup.string().required('Item ID is required'),
-    issuedDate: Yup.date().required('Issued Date is required'),
+    issuedDate: Yup.date().required('Fault Date is required'),
     status: Yup.string().required('Status is required'),
   });
   const theme = useTheme();
@@ -118,7 +118,7 @@ export default function ItemNewEditForm({ isEdit = false, id, currentIssue, hand
           <Stack spacing={3}>
             <Card sx={{ p: 3 }}>
               <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
-                Issued Date
+                Fault Date
               </Typography>
               <RHFTextField name="issuedDate" type="date" />
             </Card>

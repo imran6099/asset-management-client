@@ -16,10 +16,10 @@ import Markdown from '../../../components/Markdown';
 import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
 
 // sections
-import { TransferDetailsSummary } from '../../../sections/@dashboard/transfer/details';
+import { LoanDetailsSummary } from '../../../sections/@dashboard/loan/details';
 import RoleBasedGuard from '../../../guards/RoleBasedGuard';
-import { getTransfers } from '../../../redux/slices/transfer';
-import { updateTransferReqStatus } from '../../../redux/thunk/transfer';
+import { getLoans } from '../../../redux/slices/loan';
+import { updateLoanReqStatus } from '../../../redux/thunk/loan';
 import { useSnackbar } from 'notistack';
 
 // ----------------------------------------------------------------------
@@ -33,11 +33,11 @@ export default function IssueDetails() {
     query: { id },
   } = useRouter();
 
-  const { transfer } = useSelector((state) => state);
+  const { loan } = useSelector((state) => state);
 
-  const { transfers } = transfer;
+  const { loans } = loan;
 
-  const currentItem = transfers.find((item) => item.id === id);
+  const currentItem = loans.find((item) => item.id === id);
   const { enqueueSnackbar } = useSnackbar();
 
   const [currentTab, setCurrentTab] = useState('reason');
@@ -52,35 +52,35 @@ export default function IssueDetails() {
 
   const dispatch = useDispatch();
 
-  const handleTransferUpdate = async (id, transferReqStatus) => {
+  const handleLoanUpdate = async (id, status) => {
     const reqObject = {
       id,
-      transferReqStatus,
+      status,
     };
-    const reduxResponse = await dispatch(updateTransferReqStatus(reqObject));
-    if (reduxResponse.type === 'transfer/update-req-status/rejected') {
+    const reduxResponse = await dispatch(updateLoanReqStatus(reqObject));
+    if (reduxResponse.type === 'loan/update-req-status/rejected') {
       const { error } = reduxResponse;
       enqueueSnackbar(`${error.message}`, {
         variant: 'error',
       });
-    } else if (reduxResponse.type === 'transfer/update-req-status/fulfilled') {
+    } else if (reduxResponse.type === 'loan/update-req-status/fulfilled') {
       enqueueSnackbar('Transfer Status Updated!', {
         variant: 'success',
       });
-      await dispatch(getTransfers());
+      await dispatch(getLoans());
     }
   };
 
   return (
     <RoleBasedGuard roles={['admin', 'manager', 'user']} hasContent={true}>
-      <Page title="Transfer: List">
+      <Page title="Loan: List">
         <Container maxWidth={'lg'}>
           <HeaderBreadcrumbs
-            heading="Transfer Details"
+            heading="Loan Details"
             links={[
               { name: 'Admin', href: PATH_ADMIN.root },
-              { name: 'Transfer', href: PATH_ADMIN.transfer.list },
-              { name: currentItem.title || '' },
+              { name: 'Loans', href: PATH_ADMIN.loan.list },
+              { name: currentItem?.itemName || '' },
             ]}
           />
 
@@ -88,7 +88,7 @@ export default function IssueDetails() {
             <>
               <Grid container spacing={3}>
                 <Grid item xs={12} md={6} lg={5}>
-                  <TransferDetailsSummary transfer={currentItem} handleTransferUpdate={handleTransferUpdate} />
+                  <LoanDetailsSummary loan={currentItem} handleLoanUpdate={handleLoanUpdate} />
                 </Grid>
               </Grid>
               <Card sx={{ marginTop: '2%' }}>

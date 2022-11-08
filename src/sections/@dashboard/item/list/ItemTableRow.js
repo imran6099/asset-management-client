@@ -137,7 +137,7 @@ export default function UserTableRow({
                 }}
               >
                 <Iconify icon={'eva:edit-fill'} />
-                New Event
+                New Fault
               </MenuItem>
               <MenuItem
                 onClick={() => {
